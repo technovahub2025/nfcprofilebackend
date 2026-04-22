@@ -13,12 +13,7 @@ const profileSchema = new mongoose.Schema({
   linkedin: { type: String, default: "" },
   facebook: { type: String, default: "" },
 
-  // Optional image
-  profileImageBase64: {
-    type: String,
-    default: null
-  }
-
+  
 }, { timestamps: true });
 
 module.exports = mongoose.model("Profile", profileSchema);
