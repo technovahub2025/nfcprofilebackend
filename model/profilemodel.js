@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const mongoose = require("mongoose");
 
 const profileSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -7,12 +8,11 @@ const profileSchema = new mongoose.Schema({
   address: String,
   bio: String,
 
-  social: {
-    googleBusiness: String,
-    instagram: String,
-    linkedin: String,
-    facebook: String
-  },
+  // 👇 moved out of "social"
+  googleBusiness: { type: String, default: "" },
+  instagram: { type: String, default: "" },
+  linkedin: { type: String, default: "" },
+  facebook: { type: String, default: "" },
 
   // Optional image
   profileImageBase64: {
