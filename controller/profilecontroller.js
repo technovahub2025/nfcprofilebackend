@@ -13,7 +13,7 @@ exports.createProfile = async (req, res) => {
     const baseUrl = `${req.protocol}://${req.get("host")}`;
 
     // 👉 Generate profile URL
-    const profileUrl = `${baseUrl}/api/profile/${saved._id}`;
+    const profileUrl = `${baseUrl}/api/getprofile/${saved._id}`;
 
     res.status(201).json({
       message: "Profile created",
