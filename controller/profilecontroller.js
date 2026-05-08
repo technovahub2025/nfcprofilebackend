@@ -452,6 +452,15 @@ ${
 <button
 type="button"
 class="action-btn"
+onclick="saveContact()"
+style="margin-bottom:10px;"
+>
+Save Contact
+</button>
+
+<button
+type="button"
+class="action-btn"
 onclick="shareProfile()"
 >
 Share Profile
@@ -479,8 +488,8 @@ Scan to open this profile on another phone.
 
 <script>
 
-// AUTO DOWNLOAD CONTACT
-window.onload = function () {
+// SAVE CONTACT
+function saveContact() {
 
   const vcard =
     ${JSON.stringify(vCard)};
@@ -508,7 +517,7 @@ window.onload = function () {
   link.click();
 
   document.body.removeChild(link);
-};
+}
 
 // SHARE PROFILE
 function shareProfile() {
