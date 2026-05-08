@@ -56,6 +56,23 @@ exports.getProfileHtml = async (req, res) => {
       googleBusiness = "",
     } = profile;
 
+    const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
+    const profileUrl = `${protocol}://${req.get("host")}${req.originalUrl}`;
+    const cleanPhone = String(phone).replace(/[^\d+]/g, "");
+    const vCard = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
+      `FN:${name}`,
+      `TEL:${cleanPhone}`,
+      email ? `EMAIL:${email}` : "",
+      address ? `ADR:;;${address}` : "",
+      website ? `URL:${website}` : "",
+      "END:VCARD",
+    ]
+      .filter(Boolean)
+      .join("\n");
+    const vCardDataUri = `data:text/vcard;charset=utf-8,${encodeURIComponent(vCard)}`;
+
     res.send(`
 <!DOCTYPE html>
 <html lang="en">
@@ -122,6 +139,47 @@ h1{
 .info p{
     margin:10px 0;
 }
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:18px;
+}
+.action-btn{
+    display:block;
+    text-decoration:none;
+    padding:12px 14px;
+    border-radius:12px;
+    text-align:center;
+    color:white;
+    font-weight:bold;
+    border:none;
+    cursor:pointer;
+}
+.share{
+    background: linear-gradient(135deg, #0f766e, #14b8a6);
+}
+.save{
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+.qr-wrap{
+    margin-top:20px;
+    padding:16px;
+    border-radius:16px;
+    background:#fafafa;
+    text-align:center;
+    border:1px solid #eee;
+}
+.qr-wrap img{
+    width:170px;
+    height:170px;
+    max-width:100%;
+}
+.qr-wrap p{
+    margin:12px 0 0;
+    color:#666;
+    font-size:14px;
+}
 </style>
 </head>
 <body>
@@ -142,8 +200,47 @@ ${linkedin ? `<a href="${escapeHtml(linkedin)}" target="_blank" class="btn linke
 ${facebook ? `<a href="${escapeHtml(facebook)}" target="_blank" class="btn facebook">📘 Facebook</a>` : ""}
 ${website ? `<a href="${escapeHtml(website)}" target="_blank" class="btn website">🌐 Website</a>` : ""}
 ${googleBusiness ? `<a href="${escapeHtml(googleBusiness)}" target="_blank" class="btn website">🏢 Google Business</a>` : ""}
+
+<div class="actions">
+<button type="button" class="action-btn share" onclick="shareProfile()">Share Profile</button>
+<a class="action-btn save" href="${vCardDataUri}" download="${escapeHtml(name || "contact")}.vcf">Save Contact</a>
+</div>
+
+<div class="qr-wrap">
+<img
+  src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(profileUrl)}"
+  alt="Profile QR Code"
+/>
+<p>Scan to open this profile on another phone.</p>
 </div>
 </div>
+</div>
+
+<script>
+function shareProfile() {
+  const shareData = {
+    title: ${JSON.stringify(name || "Business Profile")},
+    text: ${JSON.stringify(name ? `${name}'s profile` : "Business profile")},
+    url: ${JSON.stringify(profileUrl)}
+  };
+
+  if (navigator.share) {
+    navigator.share(shareData).catch(() => {});
+    return;
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(shareData.url).then(() => {
+      alert("Profile link copied to clipboard");
+    }).catch(() => {
+      window.prompt("Copy this profile link:", shareData.url);
+    });
+    return;
+  }
+
+  window.prompt("Copy this profile link:", shareData.url);
+}
+</script>
 </body>
 </html>
     `);
