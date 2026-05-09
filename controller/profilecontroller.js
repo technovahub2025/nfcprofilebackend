@@ -474,6 +474,26 @@ Scan to open this profile on another phone.
 
 </div>
 
+
+
+<div style="margin-top:25px;text-align:center;">
+  <a 
+    href="https://www.technovahub.in/" 
+    target="_blank" 
+    style="
+      text-decoration:none;
+      color:#666;
+      font-size:14px;
+      font-weight:500;
+    "
+  >
+    Powered by TechNovaHub
+  </a>
+</div>
+
+</div>
+</div>
+
 </div>
 </div>
 
