@@ -392,6 +392,7 @@ ${
     ? `<a
         href="${escapeHtml(instagramUrl)}"
         target="_blank"
+        rel="noopener noreferrer"
         class="btn instagram"
       >
       📷 Instagram
@@ -404,6 +405,7 @@ ${
     ? `<a
         href="${escapeHtml(linkedinUrl)}"
         target="_blank"
+        rel="noopener noreferrer"
         class="btn linkedin"
       >
       💼 LinkedIn
@@ -416,6 +418,7 @@ ${
     ? `<a
         href="${escapeHtml(facebookUrl)}"
         target="_blank"
+        rel="noopener noreferrer"
         class="btn facebook"
       >
       📘 Facebook
@@ -428,6 +431,7 @@ ${
     ? `<a
         href="${escapeHtml(websiteUrl)}"
         target="_blank"
+        rel="noopener noreferrer"
         class="btn website"
       >
       🌐 Website
@@ -440,6 +444,7 @@ ${
     ? `<a
         href="${escapeHtml(googleBusinessUrl)}"
         target="_blank"
+        rel="noopener noreferrer"
         class="btn website"
       >
       🏢 Google Business Profile
@@ -455,6 +460,22 @@ class="action-btn"
 onclick="shareProfile()"
 >
 Share Profile
+</button>
+
+<button
+type="button"
+class="action-btn"
+onclick="saveContact()"
+style="
+  margin-top:10px;
+  background:linear-gradient(
+    135deg,
+    #2563eb,
+    #3b82f6
+  );
+"
+>
+💾 Save Contact
 </button>
 
 </div>
@@ -474,63 +495,32 @@ Scan to open this profile on another phone.
 
 </div>
 
-
-
 <div style="margin-top:25px;text-align:center;">
-  <a 
-    href="https://www.technovahub.in/" 
-    target="_blank" 
-    style="
-      text-decoration:none;
-      color:#666;
-      font-size:14px;
-      font-weight:500;
-    "
-  >
-    Powered by TechNovaHub
-  </a>
+
+<a
+  href="https://www.technovahub.in/"
+  target="_blank"
+  rel="noopener noreferrer"
+  style="
+    text-decoration:none;
+    color:#666;
+    font-size:14px;
+    font-weight:500;
+  "
+>
+  Powered by TechNovaHub
+</a>
+
 </div>
 
 </div>
-</div>
 
-</div>
 </div>
 
 <script>
 
-// AUTO DOWNLOAD CONTACT
-window.onload = function () {
-
-  const vcard =
-    ${JSON.stringify(vCard)};
-
-  const blob = new Blob(
-    [vcard],
-    {
-      type: "text/vcard"
-    }
-  );
-
-  const link =
-    document.createElement("a");
-
-  link.href =
-    window.URL.createObjectURL(blob);
-
-  link.download =
-    ${JSON.stringify(
-      (name || "contact") + ".vcf"
-    )};
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  document.body.removeChild(link);
-};
-
 // SHARE PROFILE
+
 function shareProfile() {
 
   const shareData = {
@@ -552,6 +542,7 @@ function shareProfile() {
   };
 
   // SHARE API
+
   if (navigator.share) {
 
     navigator
@@ -562,6 +553,7 @@ function shareProfile() {
   }
 
   // COPY LINK
+
   if (
     navigator.clipboard &&
     navigator.clipboard.writeText
@@ -596,9 +588,42 @@ function shareProfile() {
   );
 }
 
+// SAVE CONTACT
+
+function saveContact() {
+
+  const vcard =
+    ${JSON.stringify(vCard)};
+
+  const blob = new Blob(
+    [vcard],
+    {
+      type: "text/vcard"
+    }
+  );
+
+  const link =
+    document.createElement("a");
+
+  link.href =
+    window.URL.createObjectURL(blob);
+
+  link.download =
+    ${JSON.stringify(
+      (name || "contact") + ".vcf"
+    )};
+
+  document.body.appendChild(link);
+
+  link.click();
+
+  document.body.removeChild(link);
+}
+
 </script>
 
 </body>
+
 </html>
 
     `);
