@@ -371,7 +371,7 @@ ${
         href="tel:${escapeHtml(phone)}"
         class="btn call"
       >
-      📞 Call
+       Call
       </a>`
     : ""
 }
@@ -382,7 +382,7 @@ ${
         href="mailto:${escapeHtml(email)}"
         class="btn email"
       >
-      ✉️ Email
+      Email
       </a>`
     : ""
 }
@@ -395,7 +395,7 @@ ${
         rel="noopener noreferrer"
         class="btn instagram"
       >
-      📷 Instagram
+      Instagram
       </a>`
     : ""
 }
@@ -408,7 +408,7 @@ ${
         rel="noopener noreferrer"
         class="btn linkedin"
       >
-      💼 LinkedIn
+       LinkedIn
       </a>`
     : ""
 }
@@ -421,7 +421,7 @@ ${
         rel="noopener noreferrer"
         class="btn facebook"
       >
-      📘 Facebook
+      Facebook
       </a>`
     : ""
 }
@@ -434,7 +434,7 @@ ${
         rel="noopener noreferrer"
         class="btn website"
       >
-      🌐 Website
+       Website
       </a>`
     : ""
 }
@@ -447,7 +447,7 @@ ${
         rel="noopener noreferrer"
         class="btn website"
       >
-      🏢 Google Business Profile
+       Google Business Profile
       </a>`
     : ""
 }
@@ -475,7 +475,7 @@ style="
   );
 "
 >
-💾 Save Contact
+Save Contact
 </button>
 
 </div>
