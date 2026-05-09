@@ -139,22 +139,46 @@ exports.getProfileHtml = async (
           )
         : "";
 
-    // VCARD
+    // VCARD WITH SOCIAL LINKS
 
     const vCard = [
       "BEGIN:VCARD",
       "VERSION:3.0",
+
       `FN:${name}`,
-      `TEL:${cleanPhone}`,
+
+      cleanPhone
+        ? `TEL:${cleanPhone}`
+        : "",
+
       email
         ? `EMAIL:${email}`
         : "",
+
       address
         ? `ADR:;;${address}`
         : "",
+
       websiteUrl
         ? `URL:${websiteUrl}`
         : "",
+
+      instagramUrl
+        ? `URL:${instagramUrl}`
+        : "",
+
+      linkedinUrl
+        ? `URL:${linkedinUrl}`
+        : "",
+
+      facebookUrl
+        ? `URL:${facebookUrl}`
+        : "",
+
+      googleBusinessUrl
+        ? `URL:${googleBusinessUrl}`
+        : "",
+
       "END:VCARD",
     ]
       .filter(Boolean)
