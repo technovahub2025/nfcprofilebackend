@@ -452,6 +452,15 @@ ${
 <button
 type="button"
 class="action-btn"
+onclick="saveContact()"
+style="margin-bottom:10px;"
+>
+Save Contact
+</button>
+
+<button
+type="button"
+class="action-btn"
 onclick="shareProfile()"
 >
 Share Profile
@@ -474,33 +483,13 @@ Scan to open this profile on another phone.
 
 </div>
 
-
-
-<div style="margin-top:25px;text-align:center;">
-  <a 
-    href="https://www.technovahub.in/" 
-    target="_blank" 
-    style="
-      text-decoration:none;
-      color:#00000;
-      font-size:18px;
-      font-weight:500;
-    "
-  >
-    @ Powered by TechNovaHub
-  </a>
-</div>
-
-</div>
-</div>
-
 </div>
 </div>
 
 <script>
 
-// AUTO DOWNLOAD CONTACT
-window.onload = function () {
+// SAVE CONTACT
+function saveContact() {
 
   const vcard =
     ${JSON.stringify(vCard)};
@@ -528,7 +517,7 @@ window.onload = function () {
   link.click();
 
   document.body.removeChild(link);
-};
+}
 
 // SHARE PROFILE
 function shareProfile() {
