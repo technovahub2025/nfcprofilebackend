@@ -17,6 +17,8 @@ const normalizeUrl = (url = "") => {
     : `https://${url}`;
 };
 
+// CREATE PROFILE
+
 exports.createProfile = async (req, res) => {
 
   try {
@@ -41,6 +43,8 @@ exports.createProfile = async (req, res) => {
   }
 };
 
+// GET PROFILE JSON
+
 exports.getProfile = async (req, res) => {
 
   try {
@@ -52,12 +56,9 @@ exports.getProfile = async (req, res) => {
 
     if (!profile) {
 
-      return res
-        .status(404)
-        .json({
-          message:
-            "Profile not found"
-        });
+      return res.status(404).json({
+        message: "Profile not found"
+      });
     }
 
     res.json(profile);
@@ -74,6 +75,8 @@ exports.getProfile = async (req, res) => {
 
 exports.getProfileById =
   exports.getProfile;
+
+// HTML PROFILE PAGE
 
 exports.getProfileHtml =
   async (req, res) => {
@@ -106,9 +109,7 @@ exports.getProfileHtml =
     } = profile;
 
     const protocol =
-      req.headers[
-        "x-forwarded-proto"
-      ] ||
+      req.headers["x-forwarded-proto"] ||
       req.protocol ||
       "https";
 
@@ -125,6 +126,8 @@ exports.getProfileHtml =
           margin: 2,
         }
       );
+
+    // CLEAN PHONE
 
     const cleanPhone =
       String(phone).replace(
@@ -554,7 +557,7 @@ Scan to open profile
 
 <script>
 
-// SHARE PROFILE + QR
+// SHARE PROFILE
 
 async function shareProfile() {
 
@@ -576,53 +579,69 @@ async function shareProfile() {
         [blob],
         "profile-qr.png",
         {
-          type:"image/png"
+          type: "image/png"
         }
       );
 
     const shareText =
-\`${name}
+      ${JSON.stringify(
+`${name}
 
-Phone: ${phone || ""}
+Phone: ${phone}
 
-Email: ${email || ""}
+Email: ${email}
 
-Address: ${address || ""}
+Address: ${address}
 
 Profile:
-${profileUrl}\`;
+${profileUrl}`
+      )};
 
     if (
       navigator.share &&
       navigator.canShare &&
       navigator.canShare({
-        files:[qrFile]
+        files: [qrFile]
       })
     ) {
 
       await navigator.share({
 
         title:
-          "${name}",
+          ${JSON.stringify(name)},
 
         text:
           shareText,
 
         url:
-          "${profileUrl}",
+          ${JSON.stringify(profileUrl)},
 
-        files:[qrFile]
+        files: [qrFile]
 
       });
 
       return;
     }
 
-    await navigator.clipboard
-      .writeText(shareText);
+    if (
+      navigator.clipboard &&
+      navigator.clipboard.writeText
+    ) {
 
-    alert(
-      "Profile copied"
+      await navigator.clipboard.writeText(
+        shareText
+      );
+
+      alert(
+        "Profile copied"
+      );
+
+      return;
+    }
+
+    window.prompt(
+      "Copy profile:",
+      shareText
     );
 
   } catch (err) {
@@ -639,33 +658,44 @@ ${profileUrl}\`;
 
 function saveContact() {
 
-  const vcard =
-    ${JSON.stringify(vCard)};
+  try {
 
-  const blob =
-    new Blob(
-      [vcard],
-      {
-        type:"text/vcard"
-      }
+    const vcard =
+      ${JSON.stringify(vCard)};
+
+    const blob =
+      new Blob(
+        [vcard],
+        {
+          type: "text/vcard"
+        }
+      );
+
+    const link =
+      document.createElement("a");
+
+    link.href =
+      URL.createObjectURL(blob);
+
+    link.download =
+      ${JSON.stringify(
+        (name || "contact") + ".vcf"
+      )};
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      "Unable to save contact"
     );
-
-  const link =
-    document.createElement("a");
-
-  link.href =
-    window.URL.createObjectURL(blob);
-
-  link.download =
-    ${JSON.stringify(
-      (name || "contact") + ".vcf"
-    )};
-
-  document.body.appendChild(link);
-
-  link.click();
-
-  document.body.removeChild(link);
+  }
 }
 
 </script>
