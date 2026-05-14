@@ -29,9 +29,7 @@ exports.createProfile = async (req, res) => {
     const savedProfile =
       await profile.save();
 
-    res
-      .status(201)
-      .json(savedProfile);
+    res.status(201).json(savedProfile);
 
   } catch (err) {
 
@@ -43,7 +41,7 @@ exports.createProfile = async (req, res) => {
   }
 };
 
-// GET PROFILE JSON
+// GET PROFILE
 
 exports.getProfile = async (req, res) => {
 
@@ -76,10 +74,10 @@ exports.getProfile = async (req, res) => {
 exports.getProfileById =
   exports.getProfile;
 
-// HTML PROFILE PAGE
+// PROFILE HTML PAGE
 
 exports.getProfileHtml =
-  async (req, res) => {
+async (req, res) => {
 
   try {
 
@@ -105,7 +103,7 @@ exports.getProfileHtml =
       linkedin = "",
       facebook = "",
       website = "",
-      googleBusiness = "",
+      googleBusiness = ""
     } = profile;
 
     const protocol =
@@ -123,16 +121,8 @@ exports.getProfileHtml =
         profileUrl,
         {
           width: 250,
-          margin: 2,
+          margin: 2
         }
-      );
-
-    // CLEAN PHONE
-
-    const cleanPhone =
-      String(phone).replace(
-        /[^\d+]/g,
-        ""
       );
 
     // SOCIAL LINKS
@@ -166,58 +156,6 @@ exports.getProfileHtml =
           )
         : "";
 
-    // VCARD
-
-    const vCard = [
-
-      "BEGIN:VCARD",
-
-      "VERSION:3.0",
-
-      `FN:${name}`,
-
-      phone
-        ? `TEL;TYPE=CELL:${cleanPhone}`
-        : "",
-
-      email
-        ? `EMAIL;TYPE=INTERNET:${email}`
-        : "",
-
-      address
-        ? `ADR;TYPE=HOME:;;${address}`
-        : "",
-
-      websiteUrl
-        ? `URL:${websiteUrl}`
-        : "",
-
-      instagramUrl
-        ? `X-SOCIALPROFILE;TYPE=instagram:${instagramUrl}`
-        : "",
-
-      linkedinUrl
-        ? `X-SOCIALPROFILE;TYPE=linkedin:${linkedinUrl}`
-        : "",
-
-      facebookUrl
-        ? `X-SOCIALPROFILE;TYPE=facebook:${facebookUrl}`
-        : "",
-
-      googleBusinessUrl
-        ? `NOTE:Google Business - ${googleBusinessUrl}`
-        : "",
-
-      bio
-        ? `NOTE:${bio}`
-        : "",
-
-      "END:VCARD",
-
-    ]
-    .filter(Boolean)
-    .join("\n");
-
     res.send(`
 
 <!DOCTYPE html>
@@ -226,7 +164,7 @@ exports.getProfileHtml =
 
 <head>
 
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 
 <meta
 name="viewport"
@@ -234,7 +172,7 @@ content="width=device-width, initial-scale=1.0"
 />
 
 <title>
-${escapeHtml(name)} - Business Profile
+${escapeHtml(name)}
 </title>
 
 <style>
@@ -251,7 +189,7 @@ body{
 }
 
 .card{
-  background:white;
+  background:#fff;
   border-radius:20px;
   padding:25px;
   box-shadow:0 5px 20px rgba(0,0,0,0.1);
@@ -262,7 +200,7 @@ body{
   height:100px;
   border-radius:50%;
   background:#667eea;
-  color:white;
+  color:#fff;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -278,7 +216,6 @@ h1{
 .bio{
   text-align:center;
   color:#666;
-  margin-top:10px;
 }
 
 .btn{
@@ -288,7 +225,7 @@ h1{
   margin-top:10px;
   border-radius:10px;
   text-align:center;
-  color:white;
+  color:#fff;
   font-weight:bold;
 }
 
@@ -316,28 +253,16 @@ h1{
   background:#333;
 }
 
-.info{
-  margin-top:20px;
-}
-
-.info p{
-  margin:10px 0;
-}
-
-.actions{
-  margin-top:20px;
-}
-
 .action-btn{
   width:100%;
-  padding:14px;
   border:none;
+  padding:14px;
+  margin-top:12px;
   border-radius:12px;
-  cursor:pointer;
   color:white;
   font-size:16px;
   font-weight:bold;
-  margin-top:12px;
+  cursor:pointer;
 }
 
 .share-btn{
@@ -350,24 +275,12 @@ h1{
 
 .qr-wrap{
   margin-top:20px;
-  padding:16px;
-  border-radius:16px;
-  background:#fafafa;
   text-align:center;
-  border:1px solid #eee;
 }
 
 .qr-wrap img{
   width:220px;
   height:220px;
-  display:block;
-  margin:auto;
-}
-
-.qr-wrap p{
-  margin:12px 0 0;
-  color:#666;
-  font-size:14px;
 }
 
 </style>
@@ -396,41 +309,10 @@ ${
     : ""
 }
 
-<div class="info">
-
-${
-  phone
-    ? `<p>
-        <b>Phone:</b>
-        ${escapeHtml(phone)}
-      </p>`
-    : ""
-}
-
-${
-  email
-    ? `<p>
-        <b>Email:</b>
-        ${escapeHtml(email)}
-      </p>`
-    : ""
-}
-
-${
-  address
-    ? `<p>
-        <b>Address:</b>
-        ${escapeHtml(address)}
-      </p>`
-    : ""
-}
-
-</div>
-
 ${
   phone
     ? `<a
-        href="tel:${escapeHtml(phone)}"
+        href="tel:${phone}"
         class="btn call"
       >
       📞 Call
@@ -441,7 +323,7 @@ ${
 ${
   email
     ? `<a
-        href="mailto:${escapeHtml(email)}"
+        href="mailto:${email}"
         class="btn email"
       >
       ✉️ Email
@@ -452,7 +334,7 @@ ${
 ${
   instagramUrl
     ? `<a
-        href="${escapeHtml(instagramUrl)}"
+        href="${instagramUrl}"
         target="_blank"
         class="btn instagram"
       >
@@ -464,7 +346,7 @@ ${
 ${
   linkedinUrl
     ? `<a
-        href="${escapeHtml(linkedinUrl)}"
+        href="${linkedinUrl}"
         target="_blank"
         class="btn linkedin"
       >
@@ -476,7 +358,7 @@ ${
 ${
   facebookUrl
     ? `<a
-        href="${escapeHtml(facebookUrl)}"
+        href="${facebookUrl}"
         target="_blank"
         class="btn facebook"
       >
@@ -488,7 +370,7 @@ ${
 ${
   websiteUrl
     ? `<a
-        href="${escapeHtml(websiteUrl)}"
+        href="${websiteUrl}"
         target="_blank"
         class="btn website"
       >
@@ -500,7 +382,7 @@ ${
 ${
   googleBusinessUrl
     ? `<a
-        href="${escapeHtml(googleBusinessUrl)}"
+        href="${googleBusinessUrl}"
         target="_blank"
         class="btn website"
       >
@@ -508,8 +390,6 @@ ${
       </a>`
     : ""
 }
-
-<div class="actions">
 
 <button
 type="button"
@@ -527,18 +407,12 @@ onclick="saveContact()"
 💾 Save Contact
 </button>
 
-</div>
-
 <div class="qr-wrap">
 
 <img
 src="${qrCodeDataUrl}"
-alt="Profile QR Code"
+alt="QR Code"
 />
-
-<p>
-Scan to open profile
-</p>
 
 </div>
 
@@ -548,22 +422,39 @@ Scan to open profile
 
 <script>
 
+const contactData = {
+  name: "${name}",
+  phone: "${phone}",
+  email: "${email}",
+  address: "${address}"
+};
+
 function shareProfile() {
+
+  const shareData = {
+    title: contactData.name,
+    text:
+      "Phone: " +
+      contactData.phone +
+      "\\nEmail: " +
+      contactData.email,
+    url: window.location.href
+  };
 
   if (navigator.share) {
 
-    navigator.share({
-      title: "Profile",
-      text: "View profile",
-      url: window.location.href
-    })
-    .then(() => console.log("Shared"))
-    .catch((err) => console.log(err));
+    navigator.share(shareData)
+      .catch((err) => {
+        console.log(err);
+      });
 
   } else {
 
-    alert("Sharing not supported");
+    navigator.clipboard.writeText(
+      window.location.href
+    );
 
+    alert("Profile link copied");
   }
 }
 
@@ -571,30 +462,34 @@ function shareProfile() {
 
 function saveContact() {
 
- const vcard =
+  const vcard =
 "BEGIN:VCARD\\n" +
 "VERSION:3.0\\n" +
-"FN:${escapeHtml(name)}\\n" +
-"TEL:${escapeHtml(phone)}\\n" +
-"EMAIL:${escapeHtml(email)}\\n" +
-"ADR:${escapeHtml(address)}\\n" +
+"FN:" + contactData.name + "\\n" +
+"TEL:" + contactData.phone + "\\n" +
+"EMAIL:" + contactData.email + "\\n" +
+"ADR:" + contactData.address + "\\n" +
 "END:VCARD";
+
   const blob = new Blob(
     [vcard],
     {
-      type: "text/vcard"
+      type:
+        "text/vcard;charset=utf-8"
     }
   );
 
   const url =
-    window.URL.createObjectURL(blob);
+    URL.createObjectURL(blob);
 
   const a =
     document.createElement("a");
 
   a.href = url;
 
-  a.download = "contact.vcf";
+  a.download =
+    (contactData.name || "contact") +
+    ".vcf";
 
   document.body.appendChild(a);
 
@@ -602,7 +497,7 @@ function saveContact() {
 
   document.body.removeChild(a);
 
-  window.URL.revokeObjectURL(url);
+  URL.revokeObjectURL(url);
 }
 
 </script>
@@ -617,8 +512,8 @@ function saveContact() {
 
     console.error(err);
 
-    res
-      .status(500)
-      .send("Server Error");
+    res.status(500).send(
+      "Server Error"
+    );
   }
 };
