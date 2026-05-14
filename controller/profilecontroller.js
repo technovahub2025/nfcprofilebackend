@@ -325,36 +325,27 @@ h1{
 }
 
 .actions{
-  margin-top:18px;
+  margin-top:20px;
 }
 
 .action-btn{
   width:100%;
-  display:block;
-  padding:12px;
+  padding:14px;
   border:none;
   border-radius:12px;
   cursor:pointer;
   color:white;
   font-size:16px;
   font-weight:bold;
-  margin-top:10px;
+  margin-top:12px;
 }
 
 .share-btn{
-  background:linear-gradient(
-    135deg,
-    #0f766e,
-    #14b8a6
-  );
+  background:#0f766e;
 }
 
 .save-btn{
-  background:linear-gradient(
-    135deg,
-    #2563eb,
-    #3b82f6
-  );
+  background:#2563eb;
 }
 
 .qr-wrap{
@@ -442,7 +433,7 @@ ${
         href="tel:${escapeHtml(phone)}"
         class="btn call"
       >
-      Call
+      📞 Call
       </a>`
     : ""
 }
@@ -453,7 +444,7 @@ ${
         href="mailto:${escapeHtml(email)}"
         class="btn email"
       >
-      Email
+      ✉️ Email
       </a>`
     : ""
 }
@@ -465,7 +456,7 @@ ${
         target="_blank"
         class="btn instagram"
       >
-      Instagram
+      📷 Instagram
       </a>`
     : ""
 }
@@ -477,7 +468,7 @@ ${
         target="_blank"
         class="btn linkedin"
       >
-      LinkedIn
+      💼 LinkedIn
       </a>`
     : ""
 }
@@ -489,7 +480,7 @@ ${
         target="_blank"
         class="btn facebook"
       >
-      Facebook
+      📘 Facebook
       </a>`
     : ""
 }
@@ -501,7 +492,7 @@ ${
         target="_blank"
         class="btn website"
       >
-      Website
+      🌐 Website
       </a>`
     : ""
 }
@@ -513,7 +504,7 @@ ${
         target="_blank"
         class="btn website"
       >
-      Google Business
+      🏢 Google Business
       </a>`
     : ""
 }
@@ -525,7 +516,7 @@ type="button"
 class="action-btn share-btn"
 onclick="shareProfile()"
 >
-Share Profile
+📤 Share Profile
 </button>
 
 <button
@@ -533,7 +524,7 @@ type="button"
 class="action-btn save-btn"
 onclick="saveContact()"
 >
-Save Contact
+💾 Save Contact
 </button>
 
 </div>
@@ -561,98 +552,53 @@ Scan to open profile
 
 async function shareProfile() {
 
-  try {
+  const shareData = {
 
-    const qrImage =
-      document.querySelector(
-        ".qr-wrap img"
-      );
+    title: ${JSON.stringify(name)},
 
-    const response =
-      await fetch(qrImage.src);
-
-    const blob =
-      await response.blob();
-
-    const qrFile =
-      new File(
-        [blob],
-        "profile-qr.png",
-        {
-          type: "image/png"
-        }
-      );
-
-    const shareText =
-      ${JSON.stringify(
-`${name}
+    text:
+\`${name}
 
 Phone: ${phone}
 
 Email: ${email}
 
-Address: ${address}
+Address: ${address}\`,
 
-Profile:
-${profileUrl}`
-      )};
+    url: ${JSON.stringify(profileUrl)}
 
-    if (
-      navigator.share &&
-      navigator.canShare &&
-      navigator.canShare({
-        files: [qrFile]
-      })
-    ) {
+  };
 
-      await navigator.share({
+  try {
 
-        title:
-          ${JSON.stringify(name)},
+    if (navigator.share) {
 
-        text:
-          shareText,
+      await navigator.share(
+        shareData
+      );
 
-        url:
-          ${JSON.stringify(profileUrl)},
-
-        files: [qrFile]
-
-      });
-
-      return;
-    }
-
-    if (
-      navigator.clipboard &&
-      navigator.clipboard.writeText
-    ) {
+    } else {
 
       await navigator.clipboard.writeText(
-        shareText
+        shareData.url
       );
 
       alert(
-        "Profile copied"
+        "Profile link copied"
       );
-
-      return;
     }
-
-    window.prompt(
-      "Copy profile:",
-      shareText
-    );
 
   } catch (err) {
 
     console.error(err);
 
     alert(
-      "Unable to share profile"
+      "Share failed"
     );
   }
 }
+
+
 
 // SAVE CONTACT
 
@@ -661,39 +607,50 @@ function saveContact() {
   try {
 
     const vcard =
-      ${JSON.stringify(vCard)};
+\`${vCard}\`;
 
     const blob =
       new Blob(
         [vcard],
         {
-          type: "text/vcard"
+          type:
+            "text/vcard;charset=utf-8"
         }
       );
 
-    const link =
+    const url =
+      window.URL.createObjectURL(
+        blob
+      );
+
+    const a =
       document.createElement("a");
 
-    link.href =
-      URL.createObjectURL(blob);
+    a.href = url;
 
-    link.download =
-      ${JSON.stringify(
-        (name || "contact") + ".vcf"
-      )};
+    a.download =
+      "${name || "contact"}.vcf";
 
-    document.body.appendChild(link);
+    document.body.appendChild(a);
 
-    link.click();
+    a.click();
 
-    document.body.removeChild(link);
+    document.body.removeChild(a);
+
+    setTimeout(() => {
+
+      window.URL.revokeObjectURL(
+        url
+      );
+
+    }, 100);
 
   } catch (err) {
 
     console.error(err);
 
     alert(
-      "Unable to save contact"
+      "Save contact failed"
     );
   }
 }
