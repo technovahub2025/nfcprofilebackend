@@ -488,105 +488,208 @@ Scan to open this profile on another phone.
 
 <script>
 
+// =========================
 // SAVE CONTACT
+// =========================
+
 function saveContact() {
 
-  const vcard =
-    ${JSON.stringify(vCard)};
+  try {
 
-  const blob = new Blob(
-    [vcard],
-    {
-      type: "text/vcard"
+    const vcard =
+      ${JSON.stringify(vCard)};
+
+    if (!vcard || vcard.trim() === "") {
+
+      alert(
+        "Error: Contact data is empty."
+      );
+
+      return;
     }
-  );
 
-  const link =
-    document.createElement("a");
+    const blob = new Blob(
+      [vcard],
+      {
+        type: "text/vcard;charset=utf-8"
+      }
+    );
 
-  link.href =
-    window.URL.createObjectURL(blob);
+    const url =
+      window.URL.createObjectURL(blob);
 
-  link.download =
-    ${JSON.stringify(
-      (name || "contact") + ".vcf"
-    )};
+    const link =
+      document.createElement("a");
 
-  document.body.appendChild(link);
+    link.href = url;
 
-  link.click();
+    link.download =
+      ${JSON.stringify(
+        (name || "contact") + ".vcf"
+      )};
 
-  document.body.removeChild(link);
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+
+      window.URL.revokeObjectURL(url);
+
+    }, 1000);
+
+    alert(
+      "Success: Contact file downloaded successfully."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Save Contact Error:",
+      error
+    );
+
+    alert(
+      "Save Contact Failed.\n\n" +
+      "Reason: " +
+      (error.message || error)
+    );
+  }
 }
 
+// =========================
 // SHARE PROFILE
-function shareProfile() {
+// =========================
 
-  const shareData = {
+async function shareProfile() {
 
-    title:
-      ${JSON.stringify(
-        name || "Business Profile"
-      )},
+  try {
 
-    text:
-      ${JSON.stringify(
-        name
-          ? `${name}'s profile`
-          : "Business profile"
-      )},
+    const shareData = {
 
-    url:
-      ${JSON.stringify(profileUrl)}
-  };
+      title:
+        ${JSON.stringify(
+          name || "Business Profile"
+        )},
 
-  // SHARE API
-  if (navigator.share) {
+      text:
+        ${JSON.stringify(
+          name
+            ? `${name}'s profile`
+            : "Business profile"
+        )},
 
-    navigator
-      .share(shareData)
-      .catch(() => {});
+      url:
+        ${JSON.stringify(profileUrl)}
+    };
 
-    return;
-  }
+    // =========================
+    // NATIVE SHARE
+    // =========================
 
-  // COPY LINK
-  if (
-    navigator.clipboard &&
-    navigator.clipboard.writeText
-  ) {
+    if (navigator.share) {
 
-    navigator.clipboard
-      .writeText(shareData.url)
+      try {
 
-      .then(() => {
-
-        alert(
-          "Profile link copied to clipboard"
+        await navigator.share(
+          shareData
         );
 
-      })
+        alert(
+          "Success: Profile shared successfully."
+        );
 
-      .catch(() => {
+      } catch (shareError) {
+
+        console.error(
+          "Share API Error:",
+          shareError
+        );
+
+        alert(
+          "Share Failed.\n\n" +
+          "Reason: " +
+          (
+            shareError.message ||
+            "User cancelled sharing."
+          )
+        );
+      }
+
+      return;
+    }
+
+    // =========================
+    // CLIPBOARD FALLBACK
+    // =========================
+
+    if (
+      navigator.clipboard &&
+      navigator.clipboard.writeText
+    ) {
+
+      try {
+
+        await navigator.clipboard.writeText(
+          shareData.url
+        );
+
+        alert(
+          "Success: Profile link copied to clipboard."
+        );
+
+      } catch (clipboardError) {
+
+        console.error(
+          "Clipboard Error:",
+          clipboardError
+        );
+
+        alert(
+          "Clipboard Copy Failed.\n\n" +
+          "Reason: " +
+          (
+            clipboardError.message ||
+            clipboardError
+          )
+        );
 
         window.prompt(
           "Copy this profile link:",
           shareData.url
         );
+      }
 
-      });
+      return;
+    }
 
-    return;
+    // =========================
+    // LAST FALLBACK
+    // =========================
+
+    window.prompt(
+      "Copy this profile link:",
+      shareData.url
+    );
+
+  } catch (error) {
+
+    console.error(
+      "Share Profile Error:",
+      error
+    );
+
+    alert(
+      "Share Profile Failed.\n\n" +
+      "Reason: " +
+      (error.message || error)
+    );
   }
-
-  window.prompt(
-    "Copy this profile link:",
-    shareData.url
-  );
 }
 
 </script>
-
 </body>
 </html>
 
