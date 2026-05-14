@@ -548,111 +548,61 @@ Scan to open profile
 
 <script>
 
-// SHARE PROFILE
+function shareProfile() {
 
-async function shareProfile() {
+  if (navigator.share) {
 
-  const shareData = {
+    navigator.share({
+      title: "Profile",
+      text: "View profile",
+      url: window.location.href
+    })
+    .then(() => console.log("Shared"))
+    .catch((err) => console.log(err));
 
-    title: ${JSON.stringify(name)},
+  } else {
 
-    text:
-\`${name}
+    alert("Sharing not supported");
 
-Phone: ${phone}
-
-Email: ${email}
-
-Address: ${address}\`,
-
-    url: ${JSON.stringify(profileUrl)}
-
-  };
-
-  try {
-
-    if (navigator.share) {
-
-      await navigator.share(
-        shareData
-      );
-
-    } else {
-
-      await navigator.clipboard.writeText(
-        shareData.url
-      );
-
-      alert(
-        "Profile link copied"
-      );
-    }
-
-  } catch (err) {
-
-    console.error(err);
-
-    alert(
-      "Share failed"
-    );
   }
 }
 
 
 
-// SAVE CONTACT
-
 function saveContact() {
 
-  try {
+ const vcard =
+"BEGIN:VCARD\\n" +
+"VERSION:3.0\\n" +
+"FN:${escapeHtml(name)}\\n" +
+"TEL:${escapeHtml(phone)}\\n" +
+"EMAIL:${escapeHtml(email)}\\n" +
+"ADR:${escapeHtml(address)}\\n" +
+"END:VCARD";
+  const blob = new Blob(
+    [vcard],
+    {
+      type: "text/vcard"
+    }
+  );
 
-    const vcard =
-\`${vCard}\`;
+  const url =
+    window.URL.createObjectURL(blob);
 
-    const blob =
-      new Blob(
-        [vcard],
-        {
-          type:
-            "text/vcard;charset=utf-8"
-        }
-      );
+  const a =
+    document.createElement("a");
 
-    const url =
-      window.URL.createObjectURL(
-        blob
-      );
+  a.href = url;
 
-    const a =
-      document.createElement("a");
+  a.download = "contact.vcf";
 
-    a.href = url;
+  document.body.appendChild(a);
 
-    a.download =
-      "${name || "contact"}.vcf";
+  a.click();
 
-    document.body.appendChild(a);
+  document.body.removeChild(a);
 
-    a.click();
-
-    document.body.removeChild(a);
-
-    setTimeout(() => {
-
-      window.URL.revokeObjectURL(
-        url
-      );
-
-    }, 100);
-
-  } catch (err) {
-
-    console.error(err);
-
-    alert(
-      "Save contact failed"
-    );
-  }
+  window.URL.revokeObjectURL(url);
 }
 
 </script>
