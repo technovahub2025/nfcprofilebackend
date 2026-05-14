@@ -1,4 +1,5 @@
 const Profile = require("../model/profilemodel");
+const QRCode = require("qrcode");
 
 const escapeHtml = (value = "") =>
   String(value)
@@ -99,10 +100,23 @@ exports.getProfileHtml = async (
     const protocol =
       req.headers["x-forwarded-proto"] ||
       req.protocol ||
-      "http";
+      "https";
 
     const profileUrl =
       `${protocol}://${req.get("host")}${req.originalUrl}`;
+
+    console.log("PROFILE URL:", profileUrl);
+
+    // QR CODE
+
+    const qrCodeDataUrl =
+      await QRCode.toDataURL(
+        profileUrl,
+        {
+          width: 220,
+          margin: 2,
+        }
+      );
 
     const cleanPhone =
       String(phone).replace(
@@ -139,7 +153,7 @@ exports.getProfileHtml = async (
           )
         : "";
 
-    // VCARD WITH SOCIAL LINKS
+    // VCARD
 
     const vCard = [
       "BEGIN:VCARD",
@@ -192,11 +206,11 @@ exports.getProfileHtml = async (
 
 <head>
 
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 
 <meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
 />
 
 <title>
@@ -507,10 +521,8 @@ Save Contact
 <div class="qr-wrap">
 
 <img
-src="https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(
-      profileUrl
-    )}"
-alt="Profile QR Code"
+  src="${qrCodeDataUrl}"
+  alt="Profile QR Code"
 />
 
 <p>
@@ -565,8 +577,6 @@ function shareProfile() {
       ${JSON.stringify(profileUrl)}
   };
 
-  // SHARE API
-
   if (navigator.share) {
 
     navigator
@@ -575,8 +585,6 @@ function shareProfile() {
 
     return;
   }
-
-  // COPY LINK
 
   if (
     navigator.clipboard &&
