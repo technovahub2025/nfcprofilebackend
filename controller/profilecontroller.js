@@ -525,7 +525,7 @@ type="button"
 class="action-btn share-btn"
 onclick="shareProfile()"
 >
-Share Profile + QR
+Share Profile
 </button>
 
 <button
