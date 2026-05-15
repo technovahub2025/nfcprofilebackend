@@ -465,27 +465,20 @@ exports.getProfileHtml = async (req, res) => {
 
   websiteUrl ? `URL:${websiteUrl}` : "",
 
-  instagramUrl
-    ? `X-SOCIALPROFILE;TYPE=instagram:${instagramUrl}`
-    : "",
+  instagramUrl ? `URL;TYPE=Instagram:${instagramUrl}` : "",
 
-  linkedinUrl
-    ? `X-SOCIALPROFILE;TYPE=linkedin:${linkedinUrl}`
-    : "",
+  linkedinUrl ? `URL;TYPE=LinkedIn:${linkedinUrl}` : "",
 
-  facebookUrl
-    ? `X-SOCIALPROFILE;TYPE=facebook:${facebookUrl}`
-    : "",
+  facebookUrl ? `URL;TYPE=Facebook:${facebookUrl}` : "",
 
   googleBusinessUrl
-    ? `X-SOCIALPROFILE;TYPE=googlebusiness:${googleBusinessUrl}`
+    ? `URL;TYPE=GoogleBusiness:${googleBusinessUrl}`
     : "",
 
   "END:VCARD",
 ]
   .filter(Boolean)
   .join("\n");
-
     const html = `
 <!DOCTYPE html>
 <html lang="en">
