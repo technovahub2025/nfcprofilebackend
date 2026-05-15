@@ -1,7 +1,3 @@
-
-
-
-
 const Profile = require("../model/profilemodel");
 const QRCode = require("qrcode");
 const crypto = require("crypto");
@@ -15,12 +11,13 @@ const escapeHtml = (value = "") =>
 
 const normalizeUrl = (url = "") => {
   if (!url) return "";
+
   return url.startsWith("http://") || url.startsWith("https://")
     ? url
     : `https://${url}`;
 };
 
-// FIXED SOCIAL HELPERS
+// SOCIAL HELPERS
 const cleanInstagram = (value = "") =>
   value
     ? `https://instagram.com/${value.replace("@", "").trim()}`
@@ -31,7 +28,9 @@ const cleanLinkedin = (value = "") => {
 
   const v = value.trim();
 
-  if (v.startsWith("http://") || v.startsWith("https://")) return v;
+  if (v.startsWith("http://") || v.startsWith("https://")) {
+    return v;
+  }
 
   return `https://linkedin.com/in/${v
     .replace(/^@/, "")
@@ -41,6 +40,7 @@ const cleanLinkedin = (value = "") => {
 
 const cleanFacebook = (value = "") => {
   if (!value) return "";
+
   return value.startsWith("http")
     ? value
     : `https://facebook.com/${value.trim()}`;
@@ -50,11 +50,16 @@ const cleanFacebook = (value = "") => {
 exports.createProfile = async (req, res) => {
   try {
     const profile = new Profile(req.body);
+
     const savedProfile = await profile.save();
+
     res.status(201).json(savedProfile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server Error" });
+
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };
 
@@ -64,13 +69,18 @@ exports.getProfile = async (req, res) => {
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
+      return res.status(404).json({
+        message: "Profile not found",
+      });
     }
 
     res.json(profile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server Error" });
+
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };
 
@@ -108,20 +118,31 @@ exports.getProfileHtml = async (req, res) => {
     } = profile;
 
     const protocol =
-      req.headers["x-forwarded-proto"] || req.protocol || "http";
+      req.headers["x-forwarded-proto"] ||
+      req.protocol ||
+      "http";
 
-    const profileUrl = `${protocol}://${req.get("host")}${req.originalUrl}`;
+    const profileUrl = `${protocol}://${req.get(
+      "host"
+    )}${req.originalUrl}`;
 
     const qrCode = await QRCode.toDataURL(profileUrl);
 
-    const cleanPhone = String(phone).replace(/[^\d+]/g, "");
+    const cleanPhone = String(phone).replace(
+      /[^\d+]/g,
+      ""
+    );
 
-    // SOCIAL LINKS (FIXED)
+    // SOCIAL URLS
     const instagramUrl = cleanInstagram(instagram);
+
     const linkedinUrl = cleanLinkedin(linkedin);
+
     const facebookUrl = cleanFacebook(facebook);
 
-    const websiteUrl = website ? normalizeUrl(website) : "";
+    const websiteUrl = website
+      ? normalizeUrl(website)
+      : "";
 
     const googleBusinessUrl = googleBusiness
       ? googleBusiness.startsWith("http")
@@ -129,107 +150,117 @@ exports.getProfileHtml = async (req, res) => {
         : `https://g.page/${googleBusiness}`
       : "";
 
-   const socialNote = [
-  bio ? `Bio: ${bio}` : "",
+    // NOTE SECTION
+    const socialNote = [
+      bio ? `• Bio: ${bio}` : "",
 
-  instagramUrl ? `Instagram: ${instagramUrl}` : "",
+      instagramUrl
+        ? `• Instagram: ${instagramUrl}`
+        : "",
 
-  linkedinUrl ? `LinkedIn: ${linkedinUrl}` : "",
+      linkedinUrl
+        ? `• LinkedIn: ${linkedinUrl}`
+        : "",
 
-  facebookUrl ? `Facebook: ${facebookUrl}` : "",
+      facebookUrl
+        ? `• Facebook: ${facebookUrl}`
+        : "",
 
-  googleBusinessUrl
-    ? `Google Business: ${googleBusinessUrl}`
-    : "",
+      googleBusinessUrl
+        ? `• Google Business: ${googleBusinessUrl}`
+        : "",
 
-  websiteUrl ? `Website: ${websiteUrl}` : "",
-]
-  .filter(Boolean)
-  .join(" | ");
+      websiteUrl
+        ? `• Website: ${websiteUrl}`
+        : "",
+    ]
+      .filter(Boolean)
+      .join("\\n");
 
-const socialNote = [
-  bio ? `• Bio: ${bio}` : "",
+    // VCARD
+    const vCard = [
+      "BEGIN:VCARD",
+      "VERSION:3.0",
 
-  instagramUrl
-    ? `• Instagram: ${instagramUrl}`
-    : "",
+      `FN:${name}`,
 
-  linkedinUrl
-    ? `• LinkedIn: ${linkedinUrl}`
-    : "",
+      cleanPhone
+        ? `TEL;TYPE=CELL:${cleanPhone}`
+        : "",
 
-  facebookUrl
-    ? `• Facebook: ${facebookUrl}`
-    : "",
+      email
+        ? `EMAIL:${email}`
+        : "",
 
-  googleBusinessUrl
-    ? `• Google Business: ${googleBusinessUrl}`
-    : "",
+      address
+        ? `ADR:;;${address}`
+        : "",
 
-  websiteUrl
-    ? `• Website: ${websiteUrl}`
-    : "",
-]
-  .filter(Boolean)
-  .join("\\n");
+      websiteUrl
+        ? `URL:${websiteUrl}`
+        : "",
 
-const vCard = [
-  "BEGIN:VCARD",
-  "VERSION:3.0",
+      bio
+        ? `TITLE:${bio}`
+        : "",
 
-  `FN:${name}`,
+      socialNote
+        ? `NOTE:${socialNote}`
+        : "",
 
-  cleanPhone
-    ? `TEL;TYPE=CELL:${cleanPhone}`
-    : "",
+      "END:VCARD",
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-  email
-    ? `EMAIL:${email}`
-    : "",
-
-  address
-    ? `ADR:;;${address}`
-    : "",
-
-  websiteUrl
-    ? `URL:${websiteUrl}`
-    : "",
-
-  bio
-    ? `TITLE:${bio}`
-    : "",
-
-  socialNote
-    ? `NOTE:${socialNote}`
-    : "",
-
-  "END:VCARD",
-]
-  .filter(Boolean)
-  .join("\n");
     const html = `
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>${escapeHtml(name)} - Profile</title>
 
 <style>
-body { font-family: Arial; background:#f4f4f4; padding:20px; }
-.container { max-width:500px; margin:auto; }
-.card { background:#fff; padding:20px; border-radius:15px; text-align:center; }
-
-.avatar {
-  width:90px; height:90px; border-radius:50%;
-  background:#2563eb; color:#fff;
-  display:flex; align-items:center; justify-content:center;
-  font-size:35px; margin:auto;
+body{
+  font-family:Arial;
+  background:#f4f4f4;
+  padding:20px;
 }
 
-.qr-code { width:140px; margin-top:15px; }
+.container{
+  max-width:500px;
+  margin:auto;
+}
 
-.btn {
+.card{
+  background:#fff;
+  padding:20px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.avatar{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  background:#2563eb;
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:35px;
+  margin:auto;
+}
+
+.qr-code{
+  width:140px;
+  margin-top:15px;
+}
+
+.btn{
   display:block;
   padding:10px;
   margin-top:10px;
@@ -238,14 +269,31 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
   color:white;
 }
 
-.call { background:#16a34a; }
-.email { background:#2563eb; }
-.instagram { background:#E4405F; }
-.linkedin { background:#0077B5; }
-.facebook { background:#1877F2; }
-.googlebusiness { background:#4285F4; }
+.call{
+  background:#16a34a;
+}
 
-.actions button {
+.email{
+  background:#2563eb;
+}
+
+.instagram{
+  background:#E4405F;
+}
+
+.linkedin{
+  background:#0077B5;
+}
+
+.facebook{
+  background:#1877F2;
+}
+
+.googlebusiness{
+  background:#4285F4;
+}
+
+.actions button{
   width:100%;
   margin-top:10px;
   padding:12px;
@@ -256,8 +304,13 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
   font-size:16px;
 }
 
-.save { background:#10b981; }
-.share { background:#3b82f6; }
+.save{
+  background:#10b981;
+}
+
+.share{
+  background:#3b82f6;
+}
 </style>
 </head>
 
@@ -269,45 +322,81 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
 <div class="avatar">👤</div>
 
 <div class="qr-container">
-  <img src="${qrCode}" class="qr-code"/>
+<img src="${qrCode}" class="qr-code"/>
 </div>
 
 <h2>${escapeHtml(name)}</h2>
+
 <p>${escapeHtml(bio)}</p>
 
 <p>${escapeHtml(phone)}</p>
+
 <p>${escapeHtml(email)}</p>
 
-<a class="btn call" href="tel:${cleanPhone}">Call</a>
-<a class="btn email" href="mailto:${email}">Email</a>
+<a class="btn call" href="tel:${cleanPhone}">
+Call
+</a>
+
+<a class="btn email" href="mailto:${email}">
+Email
+</a>
 
 ${
   instagramUrl
-    ? `<a class="btn instagram" href="${instagramUrl}" target="_blank">Instagram</a>`
+    ? `
+<a class="btn instagram"
+href="${instagramUrl}"
+target="_blank">
+Instagram
+</a>
+`
     : ""
 }
 
 ${
   linkedinUrl
-    ? `<a class="btn linkedin" href="${linkedinUrl}" target="_blank">LinkedIn</a>`
+    ? `
+<a class="btn linkedin"
+href="${linkedinUrl}"
+target="_blank">
+LinkedIn
+</a>
+`
     : ""
 }
 
 ${
   facebookUrl
-    ? `<a class="btn facebook" href="${facebookUrl}" target="_blank">Facebook</a>`
+    ? `
+<a class="btn facebook"
+href="${facebookUrl}"
+target="_blank">
+Facebook
+</a>
+`
     : ""
 }
 
 ${
   googleBusinessUrl
-    ? `<a class="btn googlebusiness" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
+    ? `
+<a class="btn googlebusiness"
+href="${googleBusinessUrl}"
+target="_blank">
+Google Business
+</a>
+`
     : ""
 }
 
 <div class="actions">
-  <button id="saveBtn" class="save">💾 Save Contact</button>
-  <button id="shareBtn" class="share">🔗 Share Profile</button>
+<button id="saveBtn" class="save">
+💾 Save Contact
+</button>
+
+<button id="shareBtn" class="share">
+🔗 Share Profile
+</button>
 </div>
 
 </div>
@@ -322,65 +411,105 @@ window.__PROFILE_DATA__ = ${JSON.stringify({
 </script>
 
 <script nonce="${nonce}">
-function showError(title, err) {
+
+function showError(title, err){
   console.error(title, err);
-  alert(title + "\\n\\n" + (err?.message || err || "Unknown error"));
+
+  alert(
+    title +
+    "\\n\\n" +
+    (err?.message || err || "Unknown error")
+  );
 }
 
-function saveContact() {
-  try {
+function saveContact(){
+  try{
+
     const data = window.__PROFILE_DATA__;
 
-    const blob = new Blob([data.vCard], {
-      type: "text/vcard;charset=utf-8",
-    });
+    const blob = new Blob(
+      [data.vCard],
+      {
+        type:"text/vcard;charset=utf-8",
+      }
+    );
 
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
+
     a.href = url;
+
     a.download = "contact.vcf";
 
     document.body.appendChild(a);
+
     a.click();
 
     document.body.removeChild(a);
+
     URL.revokeObjectURL(url);
-  } catch (err) {
+
+  }catch(err){
     showError("SAVE CONTACT FAILED", err);
   }
 }
 
-async function shareProfile() {
-  try {
+async function shareProfile(){
+
+  try{
+
     const data = window.__PROFILE_DATA__;
 
-    if (navigator.share) {
+    if(navigator.share){
+
       await navigator.share({
-        title: data.name,
-        text: data.name + "'s profile",
-        url: data.profileUrl,
+        title:data.name,
+        text:data.name + "'s profile",
+        url:data.profileUrl,
       });
+
       return;
     }
 
     const temp = document.createElement("textarea");
+
     document.body.appendChild(temp);
+
     temp.value = data.profileUrl;
+
     temp.select();
+
     document.execCommand("copy");
+
     document.body.removeChild(temp);
 
     alert("Link copied!");
-  } catch (err) {
+
+  }catch(err){
     showError("SHARE PROFILE FAILED", err);
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("saveBtn")?.addEventListener("click", saveContact);
-  document.getElementById("shareBtn")?.addEventListener("click", shareProfile);
-});
+document.addEventListener(
+  "DOMContentLoaded",
+  () => {
+
+    document
+      .getElementById("saveBtn")
+      ?.addEventListener(
+        "click",
+        saveContact
+      );
+
+    document
+      .getElementById("shareBtn")
+      ?.addEventListener(
+        "click",
+        shareProfile
+      );
+  }
+);
 </script>
 
 </body>
@@ -390,6 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
     res.send(html);
   } catch (err) {
     console.error(err);
+
     res.status(500).send("Server Error");
   }
 };
