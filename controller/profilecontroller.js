@@ -289,21 +289,12 @@ async function shareProfile() {
   }
 }
 
-/* ✅ FIX: wait for DOM */
-window.addEventListener("DOMContentLoaded", () => {
+/* ✅ FIX: Attach event listeners immediately */
+const saveBtn = document.getElementById("saveBtn");
+const shareBtn = document.getElementById("shareBtn");
 
-  const saveBtn = document.getElementById("saveBtn");
-  const shareBtn = document.getElementById("shareBtn");
-
-  if (!saveBtn || !shareBtn) {
-    alert("BUTTONS NOT FOUND IN DOM");
-    return;
-  }
-
-  saveBtn.addEventListener("click", saveContact);
-  shareBtn.addEventListener("click", shareProfile);
-
-});
+if (saveBtn) saveBtn.addEventListener("click", saveContact);
+if (shareBtn) shareBtn.addEventListener("click", shareProfile);
 
 </script>
 </body>
