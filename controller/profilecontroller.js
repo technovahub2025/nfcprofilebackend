@@ -65,11 +65,9 @@ exports.getProfileHtml = async (req, res) => {
       return res.status(404).send("Profile not found");
     }
 
-    // Generate a random nonce for this request
     const crypto = require("crypto");
     const nonce = crypto.randomBytes(16).toString("base64");
 
-    // Set CSP header with nonce
     res.setHeader(
       "Content-Security-Policy",
       "script-src 'self' 'nonce-" + nonce + "'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' data:"
@@ -151,10 +149,7 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
   font-size:35px; margin:auto;
 }
 
-.qr-code {
-  width:140px;
-  margin-top:15px;
-}
+.qr-code { width:140px; margin-top:15px; }
 
 .btn {
   display:block;
@@ -170,8 +165,8 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
 .instagram { background:#E4405F; }
 .linkedin { background:#0077B5; }
 .facebook { background:#1877F2; }
-.website { background:#333; }
 .googlebusiness { background:#4285F4; }
+
 .actions button {
   width:100%;
   margin-top:10px;
@@ -180,7 +175,7 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
   border-radius:10px;
   color:white;
   cursor:pointer;
-  font-size: 16px;
+  font-size:16px;
 }
 
 .save { background:#10b981; }
@@ -221,14 +216,14 @@ ${
 }
 
 ${
-  googleBusinessUrl
-    ? `<a class="btn googlebusiness" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
+  facebookUrl
+    ? `<a class="btn facebook" href="${facebookUrl}" target="_blank">Facebook</a>`
     : ""
 }
 
 ${
-  facebookUrl
-    ? `<a class="btn facebook" href="${facebookUrl}" target="_blank">Facebook</a>`
+  googleBusinessUrl
+    ? `<a class="btn googlebusiness" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
     : ""
 }
 
@@ -240,21 +235,25 @@ ${
 </div>
 </div>
 
-<script id="profileData" type="application/json" nonce="${nonce}">
-${JSON.stringify({ vCard, profileUrl, name: name || "Profile" })}
+<script nonce="${nonce}">
+window.__PROFILE_DATA__ = ${JSON.stringify({
+  vCard,
+  profileUrl,
+  name: name || "Profile"
+})};
 </script>
 
 <script nonce="${nonce}">
 
 function showError(title, err) {
   console.error(title, err);
-  alert(title + "\n\n" + (err?.message || err || "Unknown error"));
+  alert(title + "\\n\\n" + (err?.message || err || "Unknown error"));
 }
 
 function saveContact() {
-  console.log("✅ Save Contact clicked!");
   try {
-    const data = JSON.parse(document.getElementById("profileData").textContent);
+    const data = window.__PROFILE_DATA__;
+
     const blob = new Blob([data.vCard], {
       type: "text/vcard;charset=utf-8"
     });
@@ -277,9 +276,8 @@ function saveContact() {
 }
 
 async function shareProfile() {
-  console.log("✅ Share Profile clicked!");
   try {
-    const data = JSON.parse(document.getElementById("profileData").textContent);
+    const data = window.__PROFILE_DATA__;
 
     if (navigator.share) {
       await navigator.share({
@@ -304,35 +302,13 @@ async function shareProfile() {
   }
 }
 
-function attachEventListeners() {
-  const saveBtn = document.getElementById("saveBtn");
-  const shareBtn = document.getElementById("shareBtn");
-
-  console.log("Attaching event listeners...");
-  console.log("saveBtn:", saveBtn);
-  console.log("shareBtn:", shareBtn);
-
-  if (saveBtn) {
-    saveBtn.addEventListener("click", saveContact);
-    console.log("Save contact listener attached");
-  } else {
-    console.error("saveBtn not found!");
-  }
-  if (shareBtn) {
-    shareBtn.addEventListener("click", shareProfile);
-    console.log("Share profile listener attached");
-  } else {
-    console.error("shareBtn not found!");
-  }
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", attachEventListeners);
-} else {
-  attachEventListeners();
-}
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("saveBtn")?.addEventListener("click", saveContact);
+  document.getElementById("shareBtn")?.addEventListener("click", shareProfile);
+});
 
 </script>
+
 </body>
 </html>
 `;
