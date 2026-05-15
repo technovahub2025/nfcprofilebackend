@@ -398,65 +398,74 @@ const profileUrl = ${JSON.stringify(profileUrl)};
 
 function saveContact() {
 
-  const blob = new Blob([vcard], {
-    type: "text/vcard;charset=utf-8"
-  });
+  try {
 
-  const url = window.URL.createObjectURL(blob);
+    const blob = new Blob(
+      [vcard],
+      { type: "text/vcard;charset=utf-8" }
+    );
 
-  const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
 
-  link.href = url;
+    const a = document.createElement("a");
 
-  link.download = ${JSON.stringify(
-    (name || "contact") + ".vcf"
-  )};
+    a.href = url;
 
-  document.body.appendChild(link);
+    a.download = ${JSON.stringify(
+      (name || "contact") + ".vcf"
+    )};
 
-  link.click();
+    document.body.appendChild(a);
 
-  document.body.removeChild(link);
+    a.click();
 
-  window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert("Unable to save contact");
+  }
 }
 
-function shareProfile() {
+async function shareProfile() {
 
-  const shareData = {
-    title: ${JSON.stringify(name || "Business Profile")},
-    text: ${JSON.stringify(
-      name ? `${name}'s profile` : "Business profile"
-    )},
-    url: profileUrl
-  };
+  try {
 
-  if (navigator.share) {
+    if (navigator.share) {
 
-    navigator.share(shareData)
-      .catch(() => {});
-
-    return;
-  }
-
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-
-    navigator.clipboard.writeText(profileUrl)
-      .then(() => {
-        alert("Profile link copied");
+      await navigator.share({
+        title: ${JSON.stringify(name || "Business Profile")},
+        text: ${JSON.stringify(
+          name
+            ? `${name}'s business profile`
+            : "Business Profile"
+        )},
+        url: profileUrl
       });
 
-    return;
-  }
+      return;
+    }
 
-  window.prompt(
-    "Copy this profile link:",
-    profileUrl
-  );
+    await navigator.clipboard.writeText(profileUrl);
+
+    alert("Profile link copied successfully");
+
+  } catch (err) {
+
+    console.error(err);
+
+    prompt(
+      "Copy this link:",
+      profileUrl
+    );
+  }
 }
 
 </script>
-
 </body>
 </html>
 `);
