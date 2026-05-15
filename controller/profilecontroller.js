@@ -170,6 +170,7 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
   border-radius:10px;
   color:white;
   cursor:pointer;
+  font-size: 16px;
 }
 
 .save { background:#10b981; }
@@ -240,8 +241,8 @@ function showError(title, err) {
 }
 
 function saveContact() {
+  console.log("✅ Save Contact clicked!");
   try {
-
     const blob = new Blob([vcard], {
       type: "text/vcard;charset=utf-8"
     });
@@ -264,8 +265,8 @@ function saveContact() {
 }
 
 async function shareProfile() {
+  console.log("✅ Share Profile clicked!");
   try {
-
     if (navigator.share) {
       await navigator.share({
         title: ${JSON.stringify(name || "Profile")},
@@ -289,12 +290,24 @@ async function shareProfile() {
   }
 }
 
-/* ✅ FIX: Attach event listeners immediately */
-const saveBtn = document.getElementById("saveBtn");
-const shareBtn = document.getElementById("shareBtn");
+/* ✅ FIX: Setup event listeners */
+setTimeout(() => {
+  console.log("Setting up buttons...");
+  const saveBtn = document.getElementById("saveBtn");
+  const shareBtn = document.getElementById("shareBtn");
+  
+  console.log("saveBtn found:", !!saveBtn);
+  console.log("shareBtn found:", !!shareBtn);
 
-if (saveBtn) saveBtn.addEventListener("click", saveContact);
-if (shareBtn) shareBtn.addEventListener("click", shareProfile);
+  if (saveBtn) {
+    saveBtn.addEventListener("click", saveContact);
+    console.log("✅ Save listener attached");
+  }
+  if (shareBtn) {
+    shareBtn.addEventListener("click", shareProfile);
+    console.log("✅ Share listener attached");
+  }
+}, 100);
 
 </script>
 </body>
