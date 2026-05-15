@@ -1,4 +1,5 @@
 const Profile = require("../model/profilemodel");
+const QRCode = require("qrcode");
 
 const escapeHtml = (value = "") =>
   String(value)
@@ -82,6 +83,9 @@ exports.getProfileHtml = async (req, res) => {
 
     const profileUrl = `${protocol}://${req.get("host")}${req.originalUrl}`;
 
+    // QR CODE
+    const qrCode = await QRCode.toDataURL(profileUrl);
+
     const cleanPhone = String(phone).replace(/[^\d+]/g, "");
 
     const instagramUrl = instagram
@@ -162,6 +166,20 @@ body {
   justify-content: center;
   font-size: 40px;
   margin: auto;
+}
+
+.qr-container {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.qr-code {
+  width: 150px;
+  height: 150px;
+  border-radius: 12px;
+  background: white;
+  padding: 10px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
 }
 
 h1 {
@@ -265,6 +283,14 @@ h1 {
 
     <div class="avatar">👤</div>
 
+    <div class="qr-container">
+      <img
+        src="${qrCode}"
+        alt="QR Code"
+        class="qr-code"
+      />
+    </div>
+
     <h1>${escapeHtml(name)}</h1>
 
     ${
@@ -325,7 +351,11 @@ h1 {
         : ""
     }
 
-    
+    ${
+      websiteUrl
+        ? `<a href="${escapeHtml(websiteUrl)}" target="_blank" class="btn website">🌐 Website</a>`
+        : ""
+    }
 
     ${
       googleBusinessUrl
