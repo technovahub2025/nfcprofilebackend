@@ -233,17 +233,14 @@ ${
 }
 
 <div class="actions">
-  <button id="saveBtn" class="save">💾 Save Contact</button>
-  <button id="shareBtn" class="share">🔗 Share Profile</button>
+  <button id="saveBtn" class="save" data-vcard="${encodeURIComponent(vCard)}">💾 Save Contact</button>
+  <button id="shareBtn" class="share" data-profile-url="${encodeURIComponent(profileUrl)}" data-name="${encodeURIComponent(name || "Profile")}">🔗 Share Profile</button>
 </div>
 
 </div>
 </div>
 
 <script nonce="${nonce}">
-
-const vcard = ${JSON.stringify(vCard)};
-const profileUrl = ${JSON.stringify(profileUrl)};
 
 function showError(title, err) {
   console.error(title, err);
@@ -253,7 +250,8 @@ function showError(title, err) {
 function saveContact() {
   console.log("✅ Save Contact clicked!");
   try {
-    const blob = new Blob([vcard], {
+    const vcardData = decodeURIComponent(document.getElementById("saveBtn").getAttribute("data-vcard"));
+    const blob = new Blob([vcardData], {
       type: "text/vcard;charset=utf-8"
     });
 
@@ -277,10 +275,14 @@ function saveContact() {
 async function shareProfile() {
   console.log("✅ Share Profile clicked!");
   try {
+    const shareBtn = document.getElementById("shareBtn");
+    const profileUrl = decodeURIComponent(shareBtn.getAttribute("data-profile-url"));
+    const name = decodeURIComponent(shareBtn.getAttribute("data-name"));
+
     if (navigator.share) {
       await navigator.share({
-        title: ${JSON.stringify(name || "Profile")},
-        text: ${JSON.stringify(name ? name + "'s profile" : "Profile")},
+        title: name,
+        text: name + "'s profile",
         url: profileUrl
       });
       return;
@@ -300,17 +302,23 @@ async function shareProfile() {
   }
 }
 
-setTimeout(() => {
+document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.getElementById("saveBtn");
   const shareBtn = document.getElementById("shareBtn");
-  
+
+  console.log("DOM loaded, attaching event listeners...");
+  console.log("saveBtn:", saveBtn);
+  console.log("shareBtn:", shareBtn);
+
   if (saveBtn) {
     saveBtn.addEventListener("click", saveContact);
+    console.log("Save contact listener attached");
   }
   if (shareBtn) {
     shareBtn.addEventListener("click", shareProfile);
+    console.log("Share profile listener attached");
   }
-}, 10000);
+});
 
 </script>
 </body>
