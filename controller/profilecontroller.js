@@ -210,6 +210,12 @@ ${
 }
 
 ${
+  googleBusinessUrl
+    ? `<a class="btn google-business" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
+    : ""
+}
+
+${
   facebookUrl
     ? `<a class="btn facebook" href="${facebookUrl}" target="_blank">Facebook</a>`
     : ""
