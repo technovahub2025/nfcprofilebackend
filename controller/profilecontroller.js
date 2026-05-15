@@ -222,8 +222,8 @@ ${
 }
 
 <div class="actions">
-  <button id="saveBtn">💾 Save Contact</button>
-  <button id="shareBtn">🔗 Share Profile</button>
+  <button id="saveBtn" class="save">💾 Save Contact</button>
+  <button id="shareBtn" class="share">🔗 Share Profile</button>
 </div>
 
 </div>
