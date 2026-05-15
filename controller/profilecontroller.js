@@ -302,23 +302,33 @@ async function shareProfile() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function attachEventListeners() {
   const saveBtn = document.getElementById("saveBtn");
   const shareBtn = document.getElementById("shareBtn");
 
-  console.log("DOM loaded, attaching event listeners...");
+  console.log("Attaching event listeners...");
   console.log("saveBtn:", saveBtn);
   console.log("shareBtn:", shareBtn);
 
   if (saveBtn) {
     saveBtn.addEventListener("click", saveContact);
     console.log("Save contact listener attached");
+  } else {
+    console.error("saveBtn not found!");
   }
   if (shareBtn) {
     shareBtn.addEventListener("click", shareProfile);
     console.log("Share profile listener attached");
+  } else {
+    console.error("shareBtn not found!");
   }
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", attachEventListeners);
+} else {
+  attachEventListeners();
+}
 
 </script>
 </body>
