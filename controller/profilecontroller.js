@@ -10,6 +10,7 @@ const escapeHtml = (value = "") =>
 
 const normalizeUrl = (url = "") => {
   if (!url) return "";
+
   return url.startsWith("http://") || url.startsWith("https://")
     ? url
     : `https://${url}`;
@@ -19,11 +20,16 @@ const normalizeUrl = (url = "") => {
 exports.createProfile = async (req, res) => {
   try {
     const profile = new Profile(req.body);
+
     const savedProfile = await profile.save();
+
     res.status(201).json(savedProfile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server Error" });
+
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };
 
@@ -33,13 +39,18 @@ exports.getProfile = async (req, res) => {
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
-      return res.status(404).json({ message: "Profile not found" });
+      return res.status(404).json({
+        message: "Profile not found",
+      });
     }
 
     res.json(profile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Server Error" });
+
+    res.status(500).json({
+      message: "Server Error",
+    });
   }
 };
 
@@ -163,10 +174,6 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
 
 .save { background:#10b981; }
 .share { background:#3b82f6; }
-
-.qr-container {
-  margin-top:15px;
-}
 </style>
 </head>
 
@@ -208,18 +215,6 @@ ${
     : ""
 }
 
-${
-  websiteUrl
-    ? `<a class="btn website" href="${websiteUrl}" target="_blank">Website</a>`
-    : ""
-}
-
-${
-  googleBusinessUrl
-    ? `<a class="btn website" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
-    : ""
-}
-
 <div class="actions">
   <button id="saveBtn">💾 Save Contact</button>
   <button id="shareBtn">🔗 Share Profile</button>
@@ -233,38 +228,72 @@ ${
 const vcard = ${JSON.stringify(vCard)};
 const profileUrl = ${JSON.stringify(profileUrl)};
 
-function saveContact() {
-  const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "contact.vcf";
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-
-  URL.revokeObjectURL(url);
+// 🔥 ALERT ERROR HELPER
+function showError(title, err) {
+  console.error(title, err);
+  alert(
+    title +
+    "\\n\\n" +
+    (err?.message || err || "Unknown error")
+  );
 }
 
+// 💾 SAVE CONTACT
+function saveContact() {
+  try {
+
+    const blob = new Blob([vcard], {
+      type: "text/vcard;charset=utf-8"
+    });
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "contact.vcf";
+
+    document.body.appendChild(a);
+    a.click();
+
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+  } catch (err) {
+    showError("SAVE CONTACT FAILED", err);
+  }
+}
+
+// 🔗 SHARE PROFILE
 async function shareProfile() {
   try {
+
     if (navigator.share) {
+
       await navigator.share({
         title: ${JSON.stringify(name || "Profile")},
         text: ${JSON.stringify(name ? `${name}'s profile` : "Profile")},
         url: profileUrl
       });
+
       return;
     }
 
-    await navigator.clipboard.writeText(profileUrl);
-    alert("Copied!");
-  } catch (e) {
-    prompt("Copy link:", profileUrl);
+    // fallback copy
+    const temp = document.createElement("textarea");
+    document.body.appendChild(temp);
+    temp.value = profileUrl;
+    temp.select();
+    document.execCommand("copy");
+    document.body.removeChild(temp);
+
+    alert("Link copied!");
+
+  } catch (err) {
+    showError("SHARE PROFILE FAILED", err);
   }
 }
 
+// EVENTS
 document.getElementById("saveBtn")
   .addEventListener("click", saveContact);
 
