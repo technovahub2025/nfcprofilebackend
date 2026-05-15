@@ -147,23 +147,61 @@ exports.getProfileHtml = async (req, res) => {
   .filter(Boolean)
   .join(" | ");
 
+const socialNote = [
+  bio ? `• Bio: ${bio}` : "",
+
+  instagramUrl
+    ? `• Instagram: ${instagramUrl}`
+    : "",
+
+  linkedinUrl
+    ? `• LinkedIn: ${linkedinUrl}`
+    : "",
+
+  facebookUrl
+    ? `• Facebook: ${facebookUrl}`
+    : "",
+
+  googleBusinessUrl
+    ? `• Google Business: ${googleBusinessUrl}`
+    : "",
+
+  websiteUrl
+    ? `• Website: ${websiteUrl}`
+    : "",
+]
+  .filter(Boolean)
+  .join("\\n");
+
 const vCard = [
   "BEGIN:VCARD",
   "VERSION:3.0",
 
   `FN:${name}`,
 
-  cleanPhone ? `TEL;TYPE=CELL:${cleanPhone}` : "",
+  cleanPhone
+    ? `TEL;TYPE=CELL:${cleanPhone}`
+    : "",
 
-  email ? `EMAIL:${email}` : "",
+  email
+    ? `EMAIL:${email}`
+    : "",
 
-  address ? `ADR:;;${address}` : "",
+  address
+    ? `ADR:;;${address}`
+    : "",
 
-  websiteUrl ? `URL:${websiteUrl}` : "",
+  websiteUrl
+    ? `URL:${websiteUrl}`
+    : "",
 
-  bio ? `TITLE:${bio}` : "",
+  bio
+    ? `TITLE:${bio}`
+    : "",
 
-  socialNote ? `NOTE:${socialNote}` : "",
+  socialNote
+    ? `NOTE:${socialNote}`
+    : "",
 
   "END:VCARD",
 ]
