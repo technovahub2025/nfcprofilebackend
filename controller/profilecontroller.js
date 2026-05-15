@@ -449,18 +449,42 @@ exports.getProfileHtml = async (req, res) => {
         : `https://g.page/${googleBusiness}`
       : "";
 
-    const vCard = [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      `FN:${name}`,
-      cleanPhone ? `TEL:${cleanPhone}` : "",
-      email ? `EMAIL:${email}` : "",
-      address ? `ADR:;;${address}` : "",
-      websiteUrl ? `URL:${websiteUrl}` : "",
-      "END:VCARD",
-    ]
-      .filter(Boolean)
-      .join("\n");
+   const vCard = [
+  "BEGIN:VCARD",
+  "VERSION:3.0",
+
+  `FN:${name}`,
+
+  bio ? `NOTE:${bio}` : "",
+
+  cleanPhone ? `TEL;TYPE=CELL:${cleanPhone}` : "",
+
+  email ? `EMAIL:${email}` : "",
+
+  address ? `ADR:;;${address}` : "",
+
+  websiteUrl ? `URL:${websiteUrl}` : "",
+
+  instagramUrl
+    ? `X-SOCIALPROFILE;TYPE=instagram:${instagramUrl}`
+    : "",
+
+  linkedinUrl
+    ? `X-SOCIALPROFILE;TYPE=linkedin:${linkedinUrl}`
+    : "",
+
+  facebookUrl
+    ? `X-SOCIALPROFILE;TYPE=facebook:${facebookUrl}`
+    : "",
+
+  googleBusinessUrl
+    ? `X-SOCIALPROFILE;TYPE=googlebusiness:${googleBusinessUrl}`
+    : "",
+
+  "END:VCARD",
+]
+  .filter(Boolean)
+  .join("\n");
 
     const html = `
 <!DOCTYPE html>
