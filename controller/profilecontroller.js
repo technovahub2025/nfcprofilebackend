@@ -233,12 +233,16 @@ ${
 }
 
 <div class="actions">
-  <button id="saveBtn" class="save" data-vcard="${encodeURIComponent(vCard)}">💾 Save Contact</button>
-  <button id="shareBtn" class="share" data-profile-url="${encodeURIComponent(profileUrl)}" data-name="${encodeURIComponent(name || "Profile")}">🔗 Share Profile</button>
+  <button id="saveBtn" class="save">💾 Save Contact</button>
+  <button id="shareBtn" class="share">🔗 Share Profile</button>
 </div>
 
 </div>
 </div>
+
+<script id="profileData" type="application/json" nonce="${nonce}">
+${JSON.stringify({ vCard, profileUrl, name: name || "Profile" })}
+</script>
 
 <script nonce="${nonce}">
 
@@ -250,8 +254,8 @@ function showError(title, err) {
 function saveContact() {
   console.log("✅ Save Contact clicked!");
   try {
-    const vcardData = decodeURIComponent(document.getElementById("saveBtn").getAttribute("data-vcard"));
-    const blob = new Blob([vcardData], {
+    const data = JSON.parse(document.getElementById("profileData").textContent);
+    const blob = new Blob([data.vCard], {
       type: "text/vcard;charset=utf-8"
     });
 
@@ -275,22 +279,20 @@ function saveContact() {
 async function shareProfile() {
   console.log("✅ Share Profile clicked!");
   try {
-    const shareBtn = document.getElementById("shareBtn");
-    const profileUrl = decodeURIComponent(shareBtn.getAttribute("data-profile-url"));
-    const name = decodeURIComponent(shareBtn.getAttribute("data-name"));
+    const data = JSON.parse(document.getElementById("profileData").textContent);
 
     if (navigator.share) {
       await navigator.share({
-        title: name,
-        text: name + "'s profile",
-        url: profileUrl
+        title: data.name,
+        text: data.name + "'s profile",
+        url: data.profileUrl
       });
       return;
     }
 
     const temp = document.createElement("textarea");
     document.body.appendChild(temp);
-    temp.value = profileUrl;
+    temp.value = data.profileUrl;
     temp.select();
     document.execCommand("copy");
     document.body.removeChild(temp);
