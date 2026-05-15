@@ -228,17 +228,11 @@ ${
 const vcard = ${JSON.stringify(vCard)};
 const profileUrl = ${JSON.stringify(profileUrl)};
 
-// 🔥 ALERT ERROR HELPER
 function showError(title, err) {
   console.error(title, err);
-  alert(
-    title +
-    "\\n\\n" +
-    (err?.message || err || "Unknown error")
-  );
+  alert(title + "\n\n" + (err?.message || err || "Unknown error"));
 }
 
-// 💾 SAVE CONTACT
 function saveContact() {
   try {
 
@@ -263,22 +257,18 @@ function saveContact() {
   }
 }
 
-// 🔗 SHARE PROFILE
 async function shareProfile() {
   try {
 
     if (navigator.share) {
-
       await navigator.share({
         title: ${JSON.stringify(name || "Profile")},
         text: ${JSON.stringify(name ? `${name}'s profile` : "Profile")},
         url: profileUrl
       });
-
       return;
     }
 
-    // fallback copy
     const temp = document.createElement("textarea");
     document.body.appendChild(temp);
     temp.value = profileUrl;
@@ -293,15 +283,23 @@ async function shareProfile() {
   }
 }
 
-// EVENTS
-document.getElementById("saveBtn")
-  .addEventListener("click", saveContact);
+/* ✅ FIX: wait for DOM */
+window.addEventListener("DOMContentLoaded", () => {
 
-document.getElementById("shareBtn")
-  .addEventListener("click", shareProfile);
+  const saveBtn = document.getElementById("saveBtn");
+  const shareBtn = document.getElementById("shareBtn");
+
+  if (!saveBtn || !shareBtn) {
+    alert("BUTTONS NOT FOUND IN DOM");
+    return;
+  }
+
+  saveBtn.addEventListener("click", saveContact);
+  shareBtn.addEventListener("click", shareProfile);
+
+});
 
 </script>
-
 </body>
 </html>
 `);
