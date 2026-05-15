@@ -55,7 +55,6 @@ exports.getProfile = async (req, res) => {
 };
 
 exports.getProfileById = exports.getProfile;
-
 // GET PROFILE HTML PAGE
 exports.getProfileHtml = async (req, res) => {
   try {
@@ -64,6 +63,16 @@ exports.getProfileHtml = async (req, res) => {
     if (!profile) {
       return res.status(404).send("Profile not found");
     }
+
+    // Generate a random nonce for this request
+    const crypto = require("crypto");
+    const nonce = crypto.randomBytes(16).toString("base64");
+
+    // Set CSP header with nonce
+    res.setHeader(
+      "Content-Security-Policy",
+      `script-src 'self' 'nonce-${nonce}'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' data:`
+    );
 
     const {
       name = "",
@@ -230,7 +239,7 @@ ${
 </div>
 </div>
 
-<script>
+<script nonce="${nonce}">
 
 const vcard = ${JSON.stringify(vCard)};
 const profileUrl = ${JSON.stringify(profileUrl)};
@@ -290,7 +299,7 @@ async function shareProfile() {
   }
 }
 
-/* ✅ FIX: Setup event listeners */
+/* Setup event listeners */
 setTimeout(() => {
   console.log("Setting up buttons...");
   const saveBtn = document.getElementById("saveBtn");
