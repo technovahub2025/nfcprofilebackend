@@ -56,6 +56,7 @@ exports.getProfile = async (req, res) => {
 
 exports.getProfileById = exports.getProfile;
 // GET PROFILE HTML PAGE
+// GET PROFILE HTML PAGE
 exports.getProfileHtml = async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
@@ -71,7 +72,7 @@ exports.getProfileHtml = async (req, res) => {
     // Set CSP header with nonce
     res.setHeader(
       "Content-Security-Policy",
-      `script-src 'self' 'nonce-${nonce}'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' data:`
+      "script-src 'self' 'nonce-" + nonce + "'; script-src-attr 'none'; style-src 'unsafe-inline'; img-src 'self' data:"
     );
 
     const {
@@ -130,7 +131,7 @@ exports.getProfileHtml = async (req, res) => {
       .filter(Boolean)
       .join("\n");
 
-    res.send(`
+    const html = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -279,7 +280,7 @@ async function shareProfile() {
     if (navigator.share) {
       await navigator.share({
         title: ${JSON.stringify(name || "Profile")},
-        text: ${JSON.stringify(name ? `${name}'s profile` : "Profile")},
+        text: ${JSON.stringify(name ? name + "'s profile" : "Profile")},
         url: profileUrl
       });
       return;
@@ -299,29 +300,24 @@ async function shareProfile() {
   }
 }
 
-/* Setup event listeners */
 setTimeout(() => {
-  console.log("Setting up buttons...");
   const saveBtn = document.getElementById("saveBtn");
   const shareBtn = document.getElementById("shareBtn");
   
-  console.log("saveBtn found:", !!saveBtn);
-  console.log("shareBtn found:", !!shareBtn);
-
   if (saveBtn) {
     saveBtn.addEventListener("click", saveContact);
-    console.log("✅ Save listener attached");
   }
   if (shareBtn) {
     shareBtn.addEventListener("click", shareProfile);
-    console.log("✅ Share listener attached");
   }
-}, 100);
+}, 10000);
 
 </script>
 </body>
 </html>
-`);
+`;
+
+    res.send(html);
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
