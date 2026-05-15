@@ -161,7 +161,7 @@ body { font-family: Arial; background:#f4f4f4; padding:20px; }
 .linkedin { background:#0077B5; }
 .facebook { background:#1877F2; }
 .website { background:#333; }
-
+.googlebusiness { background:#4285F4; }
 .actions button {
   width:100%;
   margin-top:10px;
@@ -211,7 +211,7 @@ ${
 
 ${
   googleBusinessUrl
-    ? `<a class="btn google-business" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
+    ? `<a class="btn googlebusiness" href="${googleBusinessUrl}" target="_blank">Google Business</a>`
     : ""
 }
 
