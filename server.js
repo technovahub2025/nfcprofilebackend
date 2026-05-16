@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const https = require('https');
 
 const Routes = require('./route/route');
 
@@ -45,10 +46,29 @@ mongoose
     .then(() => {
         console.log('✅ MongoDB Connected');
 
-        // Start Server Only After DB Connection
+        // Start Server
         app.listen(PORT, () => {
             console.log(`🚀 Server running on port ${PORT}`);
         });
+
+        // ======================
+        // KEEP SERVER ALIVE
+        // ======================
+        setInterval(() => {
+
+            https.get(
+                'https://nfcprofilebackend-so2i.onrender.com/',
+                (res) => {
+                    console.log(
+                        `Self Ping Status: ${res.statusCode}`
+                    );
+                }
+            ).on('error', (err) => {
+                console.log('Self Ping Error:', err.message);
+            });
+
+        }, 15 * 60 * 1000); // every 14 minutes
+
     })
     .catch((err) => {
         console.log('❌ MongoDB Connection Error');
@@ -59,12 +79,12 @@ mongoose
 // Global Error Handler
 // ======================
 app.use((err, req, res, next) => {
+
     console.error(err.stack);
 
     res.status(500).json({
         success: false,
         message: 'Internal Server Error'
     });
+
 });
-
-
