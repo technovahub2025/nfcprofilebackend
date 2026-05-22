@@ -17,8 +17,8 @@ const normalizeUrl = (url = "") => {
     : `https://${url}`;
 };
 
-const APP_BASE_PATH = (process.env.APP_BASE_PATH || "/nfc").replace(/\/+$/, "");
-const API_PREFIX = `${APP_BASE_PATH}/api`;
+const BASE_PATH = (process.env.BASE_PATH || "/tbc_connect").replace(/\/+$/, "");
+const API_PREFIX = `${BASE_PATH}/api`;
 
 // SOCIAL HELPERS
 const cleanInstagram = (value = "") =>

@@ -11,15 +11,26 @@ const Routes = require('./route/route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const APP_BASE_PATH = (process.env.APP_BASE_PATH || '/nfc').replace(/\/+$/, '');
+const BASE_PATH = (process.env.BASE_PATH || '/tbc_connect').replace(/\/+$/, '');
+const APP_BASE_URL = process.env.APP_BASE_URL || `http://localhost:${PORT}${BASE_PATH}`;
 const LEGACY_BASE_PATH = '/tbc';
-const API_PATH = `${APP_BASE_PATH}/api`;
+const LEGACY_NFC_BASE_PATH = '/nfc';
+const API_PATH = `${BASE_PATH}/api`;
 const LEGACY_API_PATH = `${LEGACY_BASE_PATH}/api`;
+const LEGACY_NFC_API_PATH = `${LEGACY_NFC_BASE_PATH}/api`;
 
 // ======================
 // Middleware
 // ======================
-app.use(cors());
+app.set('trust proxy', 1);
+app.use(cors({
+    origin: [
+        'https://www.technovahub.in',
+        'http://localhost:3000',
+        'http://localhost:5173'
+    ],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -37,10 +48,34 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get(BASE_PATH, (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Base path is active',
+        basePath: BASE_PATH
+    });
+});
+
+app.get(`${BASE_PATH}/health`, (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Health check ok',
+        basePath: BASE_PATH
+    });
+});
+
+app.get('/health', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Health check ok'
+    });
+});
+
 app.get(API_PATH, (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'NFC API route is working successfully'
+        message: 'API route is working successfully',
+        basePath: BASE_PATH
     });
 });
 
@@ -57,6 +92,7 @@ app.get(LEGACY_API_PATH, (req, res) => {
 // ======================
 app.use(API_PATH, Routes);
 app.use(LEGACY_API_PATH, Routes);
+app.use(LEGACY_NFC_API_PATH, Routes);
 
 // ======================
 // MongoDB Connection
@@ -76,10 +112,8 @@ mongoose
         // KEEP SERVER ALIVE
         // ======================
         setInterval(() => {
-            const appOrigin = process.env.APP_ORIGIN || 'https://nfcprofilebackend-so2i.onrender.com';
-
             https.get(
-                `${appOrigin}${API_PATH}`,
+                `${APP_BASE_URL}/health`,
                 (res) => {
                     console.log(`Self Ping Status: ${res.statusCode}`);
                 }
