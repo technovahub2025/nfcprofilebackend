@@ -33,6 +33,13 @@ app.get('/', (req, res) => {
     });
 });
 
+app.get('/tbc/api', (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'TBC route is working successfully'
+    });
+});
+
 // ======================
 // API Routes
 // ======================
