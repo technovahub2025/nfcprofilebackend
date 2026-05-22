@@ -17,6 +17,9 @@ const normalizeUrl = (url = "") => {
     : `https://${url}`;
 };
 
+const APP_BASE_PATH = (process.env.APP_BASE_PATH || "/nfc").replace(/\/+$/, "");
+const API_PREFIX = `${APP_BASE_PATH}/api`;
+
 // SOCIAL HELPERS
 const cleanInstagram = (value = "") =>
   value
@@ -68,10 +71,10 @@ exports.createProfile = async (req, res) => {
       success: true,
       message: "Profile created successfully",
       data: savedProfile,
-      profileJsonUrl: `/tbc/api/profile/${savedProfile._id}`,
-      profilePageUrl: `/tbc/api/profile-page/${savedProfile._id}`,
-      fullProfileJsonUrl: `${req.protocol}://${req.get("host")}/tbc/api/profile/${savedProfile._id}`,
-      fullProfilePageUrl: `${req.protocol}://${req.get("host")}/tbc/api/profile-page/${savedProfile._id}`,
+      profileJsonUrl: `${API_PREFIX}/profile/${savedProfile._id}`,
+      profilePageUrl: `${API_PREFIX}/profile-page/${savedProfile._id}`,
+      fullProfileJsonUrl: `${req.protocol}://${req.get("host")}${API_PREFIX}/profile/${savedProfile._id}`,
+      fullProfilePageUrl: `${req.protocol}://${req.get("host")}${API_PREFIX}/profile-page/${savedProfile._id}`,
     });
   } catch (err) {
     console.error("========== CREATE PROFILE ERROR ==========");

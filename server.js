@@ -11,6 +11,10 @@ const Routes = require('./route/route');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const APP_BASE_PATH = (process.env.APP_BASE_PATH || '/nfc').replace(/\/+$/, '');
+const LEGACY_BASE_PATH = '/tbc';
+const API_PATH = `${APP_BASE_PATH}/api`;
+const LEGACY_API_PATH = `${LEGACY_BASE_PATH}/api`;
 
 // ======================
 // Middleware
@@ -24,26 +28,35 @@ app.use(helmet());
 app.use(morgan('dev'));
 
 // ======================
-// Health Check Route
+// Health Check Routes
 // ======================
 app.get('/', (req, res) => {
     res.status(200).json({
         success: true,
-        message: '🚀 Server is running successfully'
+        message: 'Server is running successfully'
     });
 });
 
-app.get('/tbc/api', (req, res) => {
+app.get(API_PATH, (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'TBC route is working successfully'
+        message: 'NFC API route is working successfully'
+    });
+});
+
+// Backward compatibility with old base path
+app.get(LEGACY_API_PATH, (req, res) => {
+    res.status(200).json({
+        success: true,
+        message: 'Legacy API route is working successfully'
     });
 });
 
 // ======================
 // API Routes
 // ======================
-app.use('/tbc/api', Routes);
+app.use(API_PATH, Routes);
+app.use(LEGACY_API_PATH, Routes);
 
 // ======================
 // MongoDB Connection
@@ -51,34 +64,34 @@ app.use('/tbc/api', Routes);
 mongoose
     .connect(process.env.MONGO_URI)
     .then(() => {
-        console.log('✅ MongoDB Connected');
+        console.log('MongoDB Connected');
 
         // Start Server
         app.listen(PORT, () => {
-            console.log(`🚀 Server running on port ${PORT}`);
+            console.log(`Server running on port ${PORT}`);
+            console.log(`API mounted at ${API_PATH}`);
         });
 
         // ======================
         // KEEP SERVER ALIVE
         // ======================
         setInterval(() => {
+            const appOrigin = process.env.APP_ORIGIN || 'https://nfcprofilebackend-so2i.onrender.com';
 
             https.get(
-                'https://nfcprofilebackend-so2i.onrender.com/',
+                `${appOrigin}${API_PATH}`,
                 (res) => {
-                    console.log(
-                        `Self Ping Status: ${res.statusCode}`
-                    );
+                    console.log(`Self Ping Status: ${res.statusCode}`);
                 }
             ).on('error', (err) => {
                 console.log('Self Ping Error:', err.message);
             });
 
-        }, 15 * 60 * 1000); // every 14 minutes
+        }, 15 * 60 * 1000);
 
     })
     .catch((err) => {
-        console.log('❌ MongoDB Connection Error');
+        console.log('MongoDB Connection Error');
         console.log(err);
     });
 
