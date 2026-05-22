@@ -36,7 +36,7 @@ app.get('/', (req, res) => {
 // ======================
 // API Routes
 // ======================
-app.use('/api', Routes);
+app.use('/tbc/api', Routes);
 
 // ======================
 // MongoDB Connection
