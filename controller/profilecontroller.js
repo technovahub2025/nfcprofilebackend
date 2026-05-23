@@ -338,6 +338,23 @@ body{
 .share{
   background:#3b82f6;
 }
+
+
+.powered-by{
+  margin-top:20px;
+  font-size:14px;
+  color:#666;
+}
+
+.powered-by a{
+  color:#2563eb;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.powered-by a:hover{
+  text-decoration:underline;
+}
 </style>
 </head>
 
@@ -429,6 +446,21 @@ Google Business
 </div>
 </div>
 
+
+<div class="powered-by">
+  Powered by 
+  <a 
+    href="https://www.technovahub.in" 
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    Technovahub
+  </a>
+</div>
+
+</div>
+</div>
+
 <script nonce="${nonce}">
 window.__PROFILE_DATA__ = ${JSON.stringify({
   vCard,
@@ -511,10 +543,10 @@ async function shareProfile(){
 
     document.body.removeChild(temp);
 
-    alert("Link copied!");
+    
 
   }catch(err){
-    showError("SHARE PROFILE FAILED", err);
+    
   }
 }
 
