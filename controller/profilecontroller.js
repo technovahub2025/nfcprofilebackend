@@ -446,7 +446,7 @@ Google Business
 </div>
 </div>
 
-
+<center>
 <div class="powered-by">
   Powered by 
   <a 
@@ -457,7 +457,7 @@ Google Business
     Technovahub
   </a>
 </div>
-
+</center>
 </div>
 </div>
 
