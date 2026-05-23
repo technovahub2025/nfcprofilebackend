@@ -50,38 +50,33 @@ const cleanFacebook = (value = "") => {
 };
 
 // CREATE PROFILE
-// CREATE PROFILE WITH DEBUG
 exports.createProfile = async (req, res) => {
   try {
     console.log("========== CREATE PROFILE DEBUG ==========");
     console.log("REQ BODY:", req.body);
-    console.log("REQ HEADERS CONTENT-TYPE:", req.headers["content-type"]);
 
     const profile = new Profile(req.body);
 
-    console.log("PROFILE BEFORE SAVE:", profile);
-
     const savedProfile = await profile.save();
-
-    console.log("SAVED PROFILE:", savedProfile);
-    console.log("SAVED PROFILE ID:", savedProfile._id);
-    console.log("==========================================");
 
     res.status(201).json({
       success: true,
       message: "Profile created successfully",
       data: savedProfile,
+
       profileJsonUrl: `${API_PREFIX}/profile/${savedProfile._id}`,
+
       profilePageUrl: `${API_PREFIX}/profile-page/${savedProfile._id}`,
-      fullProfileJsonUrl: `${req.protocol}://${req.get("host")}${API_PREFIX}/profile/${savedProfile._id}`,
-      fullProfilePageUrl: `${req.protocol}://${req.get("host")}${API_PREFIX}/profile-page/${savedProfile._id}`,
+
+      fullProfileJsonUrl:
+        `${req.protocol}://${req.get("host")}` +
+        `${API_PREFIX}/profile/${savedProfile._id}`,
+
+      fullProfilePageUrl:
+        `https://www.technovahub.in/tbc_connect/api/profile-page/${savedProfile._id}`,
     });
   } catch (err) {
-    console.error("========== CREATE PROFILE ERROR ==========");
-    console.error("ERROR MESSAGE:", err.message);
-    console.error("ERROR STACK:", err.stack);
-    console.error("REQ BODY:", req.body);
-    console.error("==========================================");
+    console.error(err);
 
     res.status(500).json({
       success: false,
@@ -90,6 +85,7 @@ exports.createProfile = async (req, res) => {
     });
   }
 };
+
 // GET PROFILE JSON
 exports.getProfile = async (req, res) => {
   try {
@@ -144,15 +140,11 @@ exports.getProfileHtml = async (req, res) => {
       googleBusiness = "",
     } = profile;
 
-    const protocol =
-      req.headers["x-forwarded-proto"] ||
-      req.protocol ||
-      "http";
+    // QR URL
+    const profileUrl =
+      `https://www.technovahub.in/tbc_connect/api/profile-page/${profile._id}`;
 
-    const profileUrl = `${protocol}://${req.get(
-      "host"
-    )}${req.originalUrl}`;
-
+    // QR IMAGE
     const qrCode = await QRCode.toDataURL(profileUrl);
 
     const cleanPhone = String(phone).replace(
@@ -339,7 +331,6 @@ body{
   background:#3b82f6;
 }
 
-
 .powered-by{
   margin-top:20px;
   font-size:14px;
@@ -350,10 +341,6 @@ body{
   color:#2563eb;
   text-decoration:none;
   font-weight:bold;
-}
-
-.powered-by a:hover{
-  text-decoration:underline;
 }
 </style>
 </head>
@@ -448,18 +435,16 @@ Google Business
 
 <center>
 <div class="powered-by">
-  Powered by 
-  <a 
-    href="https://www.technovahub.in" 
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    Technovahub
-  </a>
+Powered by
+<a
+href="https://www.technovahub.in"
+target="_blank"
+rel="noopener noreferrer"
+>
+Technovahub
+</a>
 </div>
 </center>
-</div>
-</div>
 
 <script nonce="${nonce}">
 window.__PROFILE_DATA__ = ${JSON.stringify({
@@ -471,83 +456,60 @@ window.__PROFILE_DATA__ = ${JSON.stringify({
 
 <script nonce="${nonce}">
 
-function showError(title, err){
-  console.error(title, err);
-
-  alert(
-    title +
-    "\\n\\n" +
-    (err?.message || err || "Unknown error")
-  );
-}
-
 function saveContact(){
-  try{
 
-    const data = window.__PROFILE_DATA__;
+  const data = window.__PROFILE_DATA__;
 
-    const blob = new Blob(
-      [data.vCard],
-      {
-        type:"text/vcard;charset=utf-8",
-      }
-    );
+  const blob = new Blob(
+    [data.vCard],
+    {
+      type:"text/vcard;charset=utf-8",
+    }
+  );
 
-    const url = URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
 
-    const a = document.createElement("a");
+  const a = document.createElement("a");
 
-    a.href = url;
+  a.href = url;
 
-    a.download = "contact.vcf";
+  a.download = "contact.vcf";
 
-    document.body.appendChild(a);
+  document.body.appendChild(a);
 
-    a.click();
+  a.click();
 
-    document.body.removeChild(a);
+  document.body.removeChild(a);
 
-    URL.revokeObjectURL(url);
-
-  }catch(err){
-    showError("SAVE CONTACT FAILED", err);
-  }
+  URL.revokeObjectURL(url);
 }
 
 async function shareProfile(){
 
-  try{
+  const data = window.__PROFILE_DATA__;
 
-    const data = window.__PROFILE_DATA__;
+  if(navigator.share){
 
-    if(navigator.share){
+    await navigator.share({
+      title:data.name,
+      text:data.name + "'s profile",
+      url:data.profileUrl,
+    });
 
-      await navigator.share({
-        title:data.name,
-        text:data.name + "'s profile",
-        url:data.profileUrl,
-      });
-
-      return;
-    }
-
-    const temp = document.createElement("textarea");
-
-    document.body.appendChild(temp);
-
-    temp.value = data.profileUrl;
-
-    temp.select();
-
-    document.execCommand("copy");
-
-    document.body.removeChild(temp);
-
-    
-
-  }catch(err){
-    
+    return;
   }
+
+  const temp = document.createElement("textarea");
+
+  document.body.appendChild(temp);
+
+  temp.value = data.profileUrl;
+
+  temp.select();
+
+  document.execCommand("copy");
+
+  document.body.removeChild(temp);
 }
 
 document.addEventListener(
@@ -576,12 +538,10 @@ document.addEventListener(
 `;
 
     res.send(html);
+
   } catch (err) {
     console.error(err);
 
     res.status(500).send("Server Error");
   }
 };
-
-
-
