@@ -38,6 +38,6 @@ router.get("/profile-page/:id", getProfileHtml);
 router.get("/p/:id", getProfileHtml);
 
 
-router.delete("/deleteprofile/:id",requireAuth, deleteProfile);
+router.delete("/deleteprofile/:id", deleteProfile);
 
 module.exports = router;
