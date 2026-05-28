@@ -251,7 +251,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-exports.getProfileById = exports.getProfile;
+exports.getProfileById = async (req, res) => { try { const profile = await Profile.findById(req.params.id); if (!profile) { return res.status(404).json({ message: "Profile not found", }); } res.json(profile); } catch (err) { console.error(err); res.status(500).json({ message: "Server Error", }); } };
 
 
 
