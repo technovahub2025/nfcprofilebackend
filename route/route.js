@@ -22,7 +22,7 @@ const userlogin = ensureHandler("userlogin", authController.userlogin);
 const adminlogin = ensureHandler("adminlogin", authController.adminlogin);
 const userregister = ensureHandler("userregister", authController.userregister);
 const adminregister = ensureHandler("adminregister", authController.adminregister);
-const me = ensureHandler("me", authController.me);
+const me = typeof authController.me === "function" ? authController.me : null;
 
 const requireAuth = ensureHandler("requireAuth", authMiddleware.requireAuth);
 
@@ -35,7 +35,11 @@ router.post("/userregister", userregister);
 router.post("/adminregister", adminregister);
 router.post("/nfcuser", userlogin);
 router.post("/nfcadmin", adminlogin);
-router.get("/me", requireAuth, me);
+if (me) {
+  router.get("/me", requireAuth, me);
+} else {
+  console.warn('Skipping "/me" route because authController.me is missing');
+}
 
 router.post("/profiles", requireAuth, createProfile);
 router.get("/profiles/mine", requireAuth, getMyProfiles);
