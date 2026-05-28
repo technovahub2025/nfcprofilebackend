@@ -1,21 +1,30 @@
 const express = require("express");
-const {
-  createProfile,
-  getProfile,
-  getProfileById,
-  getProfileHtml,
-  updateProfile,
-  getMyProfiles,
-  deleteProfile,
-} = require("../controller/profilecontroller");
-const {
-  userlogin,
-  adminlogin,
-  userregister,
-  adminregister,
-  me,
-} = require("../controller/authcontroller");
-const { requireAuth } = require("../middleware/authmiddleware");
+const profileController = require("../controller/profilecontroller");
+const authController = require("../controller/authcontroller");
+const authMiddleware = require("../middleware/authmiddleware");
+
+const ensureHandler = (name, handler) => {
+  if (typeof handler !== "function") {
+    throw new TypeError(`Route handler "${name}" must be a function`);
+  }
+  return handler;
+};
+
+const createProfile = ensureHandler("createProfile", profileController.createProfile);
+const getProfile = ensureHandler("getProfile", profileController.getProfile);
+const getProfileById = ensureHandler("getProfileById", profileController.getProfileById);
+const getProfileHtml = ensureHandler("getProfileHtml", profileController.getProfileHtml);
+const updateProfile = ensureHandler("updateProfile", profileController.updateProfile);
+const getMyProfiles = ensureHandler("getMyProfiles", profileController.getMyProfiles);
+const deleteProfile = ensureHandler("deleteProfile", profileController.deleteProfile);
+
+const userlogin = ensureHandler("userlogin", authController.userlogin);
+const adminlogin = ensureHandler("adminlogin", authController.adminlogin);
+const userregister = ensureHandler("userregister", authController.userregister);
+const adminregister = ensureHandler("adminregister", authController.adminregister);
+const me = ensureHandler("me", authController.me);
+
+const requireAuth = ensureHandler("requireAuth", authMiddleware.requireAuth);
 
 const router = express.Router();
 
