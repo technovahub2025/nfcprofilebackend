@@ -24,32 +24,35 @@ const userregister = ensureHandler("userregister", authController.userregister);
 const adminregister = ensureHandler("adminregister", authController.adminregister);
 const me = typeof authController.me === "function" ? authController.me : null;
 
-const requireAuth = ensureHandler("requireAuth", authMiddleware.requireAuth);
+// Removed requireAuth usage
+// const requireAuth = ensureHandler("requireAuth", authMiddleware.requireAuth);
 
 const router = express.Router();
 
-router.post("/create", requireAuth, createProfile);
+router.post("/create", createProfile);
 router.get("/getprofile/:id", getProfile);
 
 router.post("/userregister", userregister);
 router.post("/adminregister", adminregister);
 router.post("/nfcuser", userlogin);
 router.post("/nfcadmin", adminlogin);
+
 if (me) {
-  router.get("/me", requireAuth, me);
+  router.get("/me", me);
 } else {
   console.warn('Skipping "/me" route because authController.me is missing');
 }
 
-router.post("/profiles", requireAuth, createProfile);
-router.get("/profiles/mine", requireAuth, getMyProfiles);
+router.post("/profiles", createProfile);
+router.get("/profiles/mine", getMyProfiles);
 router.get("/profiles/:id", getProfileById);
 router.get("/profile/:id", getProfileById);
-router.put("/profiles/:id", requireAuth, updateProfile);
-router.patch("/profiles/:id", requireAuth, updateProfile);
+
+router.put("/profiles/:id", updateProfile);
+router.patch("/profiles/:id", updateProfile);
+
 router.get("/profile-page/:id", getProfileHtml);
 router.get("/p/:id", getProfileHtml);
-
 
 router.delete("/deleteprofile/:id", deleteProfile);
 
