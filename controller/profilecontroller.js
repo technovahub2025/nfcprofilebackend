@@ -40,7 +40,7 @@ const PUBLIC_REDIRECT_BASE = (() => {
 
 const buildPublicProfilePageUrl = (req, profileId) => {
   if (PUBLIC_REDIRECT_BASE) {
-    return `${PUBLIC_REDIRECT_BASE}/p/${profileId}`;
+    return `${PUBLIC_REDIRECT_BASE}/profile-page/${profileId}`;
   }
 
   return `${req.protocol}://${req.get("host")}${API_PREFIX}/profile-page/${profileId}`;
