@@ -62,7 +62,50 @@ exports.createProfile = async (req, res) => {
     });
   }
 };
+// UPDATE PROFILE
+exports.updateProfile = async (req, res) => {
+  try {
+    const profile = await Profile.findByIdAndUpdate(
+      req.params.id,
+      {
+        name: req.body.name,
+        bio: req.body.bio,
+        phone: req.body.phone,
+        email: req.body.email,
+        address: req.body.address,
+        instagram: req.body.instagram,
+        linkedin: req.body.linkedin,
+        facebook: req.body.facebook,
+        website: req.body.website,
+        googleBusiness: req.body.googleBusiness,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
+    if (!profile) {
+      return res.status(404).json({
+        message: "Profile not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: profile,
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+      error: err.message,
+    });
+  }
+};
 // GET PROFILE JSON
 exports.getProfile = async (req, res) => {
   try {

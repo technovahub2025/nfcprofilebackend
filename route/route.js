@@ -4,6 +4,7 @@ const {
   getProfile,
   getProfileById,
   getProfileHtml,
+  updateProfile,
 } = require("../controller/profilecontroller");
 const {
   userlogin,
@@ -16,7 +17,7 @@ const router = express.Router();
 
 router.post("/create", createProfile);
 router.get("/getprofile/:id", getProfile);
-
+router.put("/profiles/:id", updateProfile);
 router.post("/userregister", userregister);
 router.post("/adminregister", adminregister);
 router.post("/nfcuser", userlogin);
