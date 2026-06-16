@@ -72,10 +72,21 @@ const cleanFacebook = (value = "") => {
   return v.startsWith("http") ? v : `https://facebook.com/${v}`;
 };
 
+const cleanYoutube = (value = "") => {
+  if (!value) return "";
+
+  const v = String(value).trim();
+
+  return v.startsWith("http://") || v.startsWith("https://")
+    ? v
+    : `https://youtube.com/@${v.replace(/^@/, "")}`;
+};
+
 const extractNestedSocial = (body = {}) => ({
   instagram: body.instagram || body?.social?.instagram || "",
   linkedin: body.linkedin || body?.social?.linkedin || "",
   facebook: body.facebook || body?.social?.facebook || "",
+    youtube: body.youtube || body?.social?.youtube || "",
   googleBusiness: body.googleBusiness || body?.social?.googleBusiness || "",
 });
 
@@ -106,6 +117,7 @@ const buildProfileUpdatePayload = (body = {}) => {
     googleBusiness: sanitizeText(social.googleBusiness, 150),
     instagram: sanitizeText(social.instagram, 150),
     linkedin: sanitizeText(social.linkedin, 250),
+      youtube: sanitizeText(social.youtube, 250),
     facebook: sanitizeText(social.facebook, 250),
     website: sanitizeText(body.website, 250),
   };
@@ -134,6 +146,10 @@ const buildProfilePatchPayload = (body = {}, existingProfile = {}) => {
     facebook: hasOwn(body, "facebook") || body?.social?.facebook
       ? sanitizeText(social.facebook, 250)
       : existingProfile.facebook,
+      youtube:
+  hasOwn(body, "youtube") || body?.social?.youtube
+    ? sanitizeText(social.youtube, 250)
+    : existingProfile.youtube,
     website: hasOwn(body, "website") ? sanitizeText(body.website, 250) : existingProfile.website,
   };
 };
@@ -310,6 +326,7 @@ exports.getProfileHtml = async (req, res) => {
       instagram: rawInstagram = "",
       linkedin: rawLinkedin = "",
       facebook: rawFacebook = "",
+      youtube: rawYoutube = "",
       website = "",
       googleBusiness: rawGoogleBusiness = "",
       social = {},
@@ -327,6 +344,7 @@ exports.getProfileHtml = async (req, res) => {
     const instagramUrl = cleanInstagram(instagram);
     const linkedinUrl = cleanLinkedin(linkedin);
     const facebookUrl = cleanFacebook(facebook);
+    const youtubeUrl = cleanYoutube(rawYoutube);
     const websiteUrl = website ? normalizeUrl(website) : "";
     const googleBusinessUrl = googleBusiness
       ? googleBusiness.startsWith("http")
@@ -355,6 +373,7 @@ exports.getProfileHtml = async (req, res) => {
       websiteUrl ? `URL:${websiteUrl}` : "",
       bio ? `TITLE:${bio}` : "",
       socialNote ? `NOTE:${socialNote}` : "",
+        youtubeUrl ? `- YouTube: ${youtubeUrl}` : "",
       "END:VCARD",
     ]
       .filter(Boolean)
@@ -415,7 +434,9 @@ body{
   text-decoration:none;
   color:white;
 }
-
+.youtube{
+  background:#FF0000;
+}
 .call{
   background:#16a34a;
 }
@@ -549,7 +570,18 @@ Facebook
 `
     : ""
 }
-
+${
+  youtubeUrl
+    ? `
+<a class="btn youtube"
+href="${youtubeUrl}"
+target="_blank"
+rel="noopener noreferrer">
+YouTube
+</a>
+`
+    : ""
+}
 ${
   googleBusinessUrl
     ? `
