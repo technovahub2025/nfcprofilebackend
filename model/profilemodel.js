@@ -12,6 +12,8 @@ const profileSchema = new mongoose.Schema(
     linkedin: { type: String, default: "" },
     facebook: { type: String, default: "" },
     website: { type: String, default: "" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "Login", default: null },
+    createdByEmail: { type: String, default: "" },
   },
   { timestamps: true }
 );
