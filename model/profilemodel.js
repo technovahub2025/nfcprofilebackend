@@ -11,6 +11,7 @@ const profileSchema = new mongoose.Schema(
     instagram: { type: String, default: "" },
     linkedin: { type: String, default: "" },
     facebook: { type: String, default: "" },
+    youtube: { type: String, default: "" },
     website: { type: String, default: "" },
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "Login", default: null },
     createdByEmail: { type: String, default: "" },
