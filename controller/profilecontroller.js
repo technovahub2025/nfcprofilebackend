@@ -491,14 +491,25 @@ body{
 <p>${escapeHtml(phone)}</p>
 
 <p>${escapeHtml(email)}</p>
-
+${
+  cleanPhone
+    ? `
 <a class="btn call" href="tel:${cleanPhone}">
 Call
 </a>
+`
+    : ""
+}
 
+${
+  email
+    ? `
 <a class="btn email" href="mailto:${encodeURIComponent(email)}">
 Email
 </a>
+`
+    : ""
+}
 
 ${
   instagramUrl
