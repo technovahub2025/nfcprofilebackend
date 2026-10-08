@@ -42,12 +42,7 @@ const sendIndex = (req, res) => res.sendFile(path.join(PUBLIC_DIR, 'index.html')
 // ======================
 app.set('trust proxy', 1);
 app.use(cors({
-    origin: [
-        'https://www.technovahub.in',
-        'http://localhost:3000',
-        
-        'http://localhost:64165'
-    ],
+    origin
     credentials: true
 }));
 app.use(express.json());
