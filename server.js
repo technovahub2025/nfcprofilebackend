@@ -18,6 +18,7 @@ if (missingEnvVars.length > 0) {
     process.exit(1);
 }
 
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 const normalizeBasePath = (value = '/tbc_connect') => {
@@ -44,7 +45,8 @@ app.use(cors({
     origin: [
         'https://www.technovahub.in',
         'http://localhost:3000',
-        'http://localhost:5173'
+        
+        'http://localhost:64165'
     ],
     credentials: true
 }));
