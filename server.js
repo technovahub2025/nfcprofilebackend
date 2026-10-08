@@ -91,6 +91,7 @@ app.set('trust proxy', 1);
 // Allow ALL origins
 // Allow ALL required HTTP methods
 // Allow common request headers
+// Application-level CORS also handles OPTIONS preflight requests.
 // ======================
 
 app.use(
@@ -116,12 +117,6 @@ app.use(
         ]
     })
 );
-
-// ======================
-// CORS Preflight
-// ======================
-
-app.options('*', cors());
 
 // ======================
 // Body Parsers
