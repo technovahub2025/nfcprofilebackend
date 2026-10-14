@@ -2,6 +2,38 @@ const Profile = require("../model/profilemodel");
 const QRCode = require("qrcode");
 const crypto = require("crypto");
 
+// Keep database diagnostics in server logs, never in the HTTP response.
+const logProfileEvent = (level, event, operation, id, err) => {
+  console[level]("[profile]", {
+    event,
+    operation,
+    ...(typeof id === "string" && /^[a-fA-F0-9]{24}$/.test(id)
+      ? { profileId: id }
+      : {}),
+    database: Profile.db.name,
+    collection: Profile.collection.name,
+    connectionState: Profile.db.readyState,
+    ...(err ? {
+      errorType: err.name,
+      ...(typeof err.code === "number" ? { errorCode: err.code } : {}),
+    } : {}),
+  });
+};
+
+const validateProfileId = (req, res, operation, html = false) => {
+  if (typeof req.params.id === "string" && /^[a-fA-F0-9]{24}$/.test(req.params.id)) {
+    return true;
+  }
+
+  logProfileEvent("warn", "invalid_id", operation);
+  if (html) {
+    res.status(400).send("Invalid profile ID");
+  } else {
+    res.status(400).json({ message: "Invalid profile ID" });
+  }
+  return false;
+};
+
 const escapeHtml = (value = "") =>
   String(value)
     .replace(/&/g, "&amp;")
@@ -175,20 +207,22 @@ exports.createProfile = async (req, res) => {
       fullProfilePageUrl,
     });
   } catch (err) {
-    console.error(err);
+    logProfileEvent("error", "create_error", "createProfile", undefined, err);
     res.status(500).json({
       success: false,
       message: "Server Error",
-      error: err.message,
     });
   }
 };
 
 exports.updateProfile = async (req, res) => {
+  if (!validateProfileId(req, res, "updateProfile")) return;
+
   try {
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
+      logProfileEvent("warn", "not_found", "updateProfile", req.params.id);
       return res.status(404).json({ message: "Profile not found" });
     }
 
@@ -199,8 +233,13 @@ exports.updateProfile = async (req, res) => {
     const updatedProfile = await Profile.findByIdAndUpdate(
       req.params.id,
       buildProfilePatchPayload(req.body, profile),
-      { new: true, runValidators: true }
+      { returnDocument: "after", runValidators: true }
     );
+
+    if (!updatedProfile) {
+      logProfileEvent("warn", "not_found", "updateProfile", req.params.id);
+      return res.status(404).json({ message: "Profile not found" });
+    }
 
     return res.json({
       success: true,
@@ -209,11 +248,10 @@ exports.updateProfile = async (req, res) => {
       fullProfilePageUrl: buildPublicProfilePageUrl(req, updatedProfile._id),
     });
   } catch (err) {
-    console.error(err);
+    logProfileEvent("error", "lookup_error", "updateProfile", req.params.id, err);
     return res.status(500).json({
       success: false,
       message: "Server Error",
-      error: err.message,
     });
   }
 };
@@ -248,10 +286,13 @@ exports.getMyProfiles = async (req, res) => {
 };
 // GET PROFILE JSON
 exports.getProfile = async (req, res) => {
+  if (!validateProfileId(req, res, "getProfile")) return;
+
   try {
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
+      logProfileEvent("warn", "not_found", "getProfile", req.params.id);
       return res.status(404).json({
         message: "Profile not found",
       });
@@ -259,7 +300,7 @@ exports.getProfile = async (req, res) => {
 
     res.json(profile);
   } catch (err) {
-    console.error(err);
+    logProfileEvent("error", "lookup_error", "getProfile", req.params.id, err);
 
     res.status(500).json({
       message: "Server Error",
@@ -267,7 +308,7 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-exports.getProfileById = async (req, res) => { try { const profile = await Profile.findById(req.params.id); if (!profile) { return res.status(404).json({ message: "Profile not found", }); } res.json(profile); } catch (err) { console.error(err); res.status(500).json({ message: "Server Error", }); } };
+exports.getProfileById = exports.getProfile;
 
 
 
@@ -301,10 +342,13 @@ exports.deleteProfile = async (req, res) => {
 };
 
 exports.getProfileHtml = async (req, res) => {
+  if (!validateProfileId(req, res, "getProfileHtml", true)) return;
+
   try {
     const profile = await Profile.findById(req.params.id);
 
     if (!profile) {
+      logProfileEvent("warn", "not_found", "getProfileHtml", req.params.id);
       return res.status(404).send("Profile not found");
     }
 
@@ -678,7 +722,7 @@ document.addEventListener(
 
     res.send(html);
   } catch (err) {
-    console.error(err);
+    logProfileEvent("error", "lookup_error", "getProfileHtml", req.params.id, err);
 
     res.status(500).send("Server Error");
   }
