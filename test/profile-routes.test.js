@@ -11,6 +11,7 @@ const replacementUrl = `https://www.technovahub.in/tbc_connect/api/profile-page/
 const configureRedirect = (t, url = replacementUrl, status = "302") => {
   for (const [key, value] of Object.entries({
     LEGACY_PROFILE_REDIRECT_URL: url,
+    LEGACY_PROFILE_REDIRECT_URL_2: "https://www.technovahub.in/tbc_connect/api/profile-page/6acf5f8ba4d611481f52e904",
     LEGACY_PROFILE_REDIRECT_STATUS: status,
   })) {
     const previous = process.env[key];
@@ -215,4 +216,75 @@ test("the previously mentioned old ID is not redirected to this person's profile
   assert.equal(response.status, 404);
   assert.equal(response.headers.get("location"), null);
   assert.equal(lookup.mock.calls[0].arguments[0], otherId);
+});
+
+test("all five old URLs redirect to their own verified replacement profiles", async (t) => {
+  configureRedirect(t);
+  delete process.env.LEGACY_PROFILE_REDIRECT_URL_2;
+  const lookup = t.mock.method(Profile, "findById", async (id) => ({ _id: id }));
+  const base = await startServer(t);
+  const pairs = [
+    [oldId, replacementId],
+    ["6a311fc60ee906263fa196ec", "6acf5f8ba4d611481f52e904"],
+    ["6a2feaa9897783774c008988", "6acf59fea4d611481f52e901"],
+    ["6a290cda897783774c00897c", "6acf58aea4d611481f52e900"],
+    ["6a2feb1e897783774c008989", "6acf4b6ea4d611481f52e8ff"],
+  ];
+  for (const key of ["LEGACY_PROFILE_REDIRECT_URL_3", "LEGACY_PROFILE_REDIRECT_URL_4", "LEGACY_PROFILE_REDIRECT_URL_5"]) {
+    const previous = process.env[key];
+    delete process.env[key];
+    t.after(() => {
+      if (previous === undefined) delete process.env[key];
+      else process.env[key] = previous;
+    });
+  }
+  for (const [source, target] of pairs) {
+    for (const path of ["profile-page", "p"]) {
+      const response = await fetch(`${base}/${path}/${source}`, { redirect: "manual" });
+      assert.equal(response.status, 302);
+      assert.equal(response.headers.get("location"), `https://www.technovahub.in/tbc_connect/api/profile-page/${target}`);
+      assert.equal(lookup.mock.calls.at(-1).arguments[0], target);
+    }
+  }
+});
+
+test("the second missing replacement returns 404 with its own configuration key", async (t) => {
+  configureRedirect(t);
+  t.mock.method(Profile, "findById", async () => null);
+  const base = await startServer(t);
+  const response = await fetch(`${base}/profile-page/6a311fc60ee906263fa196ec`, { redirect: "manual" });
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get("location"), null);
+  assert.match((await response.json()).message, /LEGACY_PROFILE_REDIRECT_URL_2/);
+});
+
+test("second mapping overrides and disabling do not affect the first", async (t) => {
+  configureRedirect(t);
+  const lookup = t.mock.method(Profile, "findById", async (id) => ({ _id: id }));
+  const base = await startServer(t);
+  const secondOldId = "6a311fc60ee906263fa196ec";
+  const customId = "507f1f77bcf86cd799439011";
+  process.env.LEGACY_PROFILE_REDIRECT_URL_2 = `${base}/profile-page/${customId}`;
+  const followed = await fetch(`${base}/profile-page/${secondOldId}`);
+  assert.equal(followed.status, 200);
+  assert.equal(followed.url, process.env.LEGACY_PROFILE_REDIRECT_URL_2);
+
+  process.env.LEGACY_PROFILE_REDIRECT_URL_2 = "";
+  const disabled = await fetch(`${base}/profile-page/${secondOldId}`, { redirect: "manual" });
+  assert.equal(disabled.status, 200);
+  assert.equal(disabled.headers.get("location"), null);
+  assert.equal(lookup.mock.calls.at(-1).arguments[0], secondOldId);
+
+  const first = await fetch(`${base}/profile-page/${oldId}`, { redirect: "manual" });
+  assert.equal(first.headers.get("location"), replacementUrl);
+});
+
+test("mappings cannot redirect to another mapped source ID", async (t) => {
+  configureRedirect(t);
+  process.env.LEGACY_PROFILE_REDIRECT_URL_2 = `https://www.technovahub.in/tbc_connect/api/profile-page/${oldId}`;
+  t.mock.method(Profile, "findById", () => assert.fail("Redirect chain must be rejected before lookup"));
+  const base = await startServer(t);
+  const response = await fetch(`${base}/profile-page/6a311fc60ee906263fa196ec`, { redirect: "manual" });
+  assert.equal(response.status, 503);
+  assert.equal(response.headers.get("location"), null);
 });
