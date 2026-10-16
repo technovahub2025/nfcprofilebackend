@@ -1,6 +1,7 @@
 const express = require("express");
 const profileController = require("../controller/profilecontroller");
 const authController = require("../controller/authcontroller");
+const legacyProfileRedirect = require("../middleware/legacyProfileRedirect");
 
 const ensureHandler = (name, handler) => {
   if (typeof handler !== "function") {
@@ -25,6 +26,17 @@ const me = typeof authController.me === "function" ? authController.me : null;
 
 const router = express.Router();
 
+// Reject malformed IDs before Mongoose attempts to cast them for a lookup.
+router.param("id", (req, res, next, id) => {
+  if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+    return res.status(400).json({
+      message: "Invalid profile ID. Expected a 24-character hexadecimal profile ID.",
+    });
+  }
+
+  next();
+});
+
 router.post("/create", createProfile);
 router.get("/getprofile/:id", getProfile);
 router.post("/userregister", userregister);
@@ -46,8 +58,8 @@ router.get("/profile/:id", getProfileById);
 router.put("/profiles/:id", updateProfile);
 router.patch("/profiles/:id", updateProfile);
 
-router.get("/profile-page/:id", getProfileHtml);
-router.get("/p/:id", getProfileHtml);
+router.get("/profile-page/:id", legacyProfileRedirect, getProfileHtml);
+router.get("/p/:id", legacyProfileRedirect, getProfileHtml);
 
 router.delete("/deleteprofile/:id", deleteProfile);
 

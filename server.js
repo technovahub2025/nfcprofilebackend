@@ -255,6 +255,11 @@ app.use(
 );
 
 // Legacy API
+// Preserve printed QR URLs even when BASE_PATH is changed in a deployment.
+if (API_PATH !== '/tbc_connect/api') {
+    app.use('/tbc_connect/api', Routes);
+}
+
 app.use(
     LEGACY_API_PATH,
     Routes
