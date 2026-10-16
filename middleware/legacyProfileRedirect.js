@@ -21,6 +21,10 @@ const PROFILE_REDIRECTS = {
     url: "https://www.technovahub.in/tbc_connect/api/profile-page/6acf4b6ea4d611481f52e8ff",
     envKey: "LEGACY_PROFILE_REDIRECT_URL_5",
   },
+  "6a18377fff67a900a751c41e": {
+    url: "https://www.technovahub.in/tbc_connect/api/profile-page/6acf5ce7a4d611481f52e902",
+    envKey: "LEGACY_PROFILE_REDIRECT_URL_6",
+  },
 };
 
 // Only the mapped profiles' HTML routes use this middleware. JSON and CRUD
