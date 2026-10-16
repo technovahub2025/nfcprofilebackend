@@ -4,8 +4,8 @@ const express = require("express");
 const Profile = require("../model/profilemodel");
 const routes = require("../route/route");
 
-const oldId = "6aca2356a4d611481f52e8fd";
-const replacementId = "507f1f77bcf86cd799439011";
+const oldId = "6a2fe4a0897783774c008984";
+const replacementId = "6acdc181a4d611481f52e8fe";
 const replacementUrl = `https://www.technovahub.in/tbc_connect/api/profile-page/${replacementId}`;
 
 const configureRedirect = (t, url = replacementUrl, status = "302") => {
@@ -193,4 +193,26 @@ test("following the old QR URL reaches the replacement HTML page", async (t) => 
   assert.equal(response.status, 200);
   assert.equal(response.url, process.env.LEGACY_PROFILE_REDIRECT_URL);
   assert.match(await response.text(), /<h2>Replacement Profile<\/h2>/);
+});
+
+test("the supplied mapping works without an environment override", async (t) => {
+  configureRedirect(t);
+  delete process.env.LEGACY_PROFILE_REDIRECT_URL;
+  const lookup = t.mock.method(Profile, "findById", async (id) => ({ _id: id }));
+  const base = await startServer(t);
+  const response = await fetch(`${base}/profile-page/${oldId}`, { redirect: "manual" });
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), replacementUrl);
+  assert.equal(lookup.mock.calls[0].arguments[0], replacementId);
+});
+
+test("the previously mentioned old ID is not redirected to this person's profile", async (t) => {
+  configureRedirect(t);
+  const otherId = "6aca2356a4d611481f52e8fd";
+  const lookup = t.mock.method(Profile, "findById", async () => null);
+  const base = await startServer(t);
+  const response = await fetch(`${base}/profile-page/${otherId}`, { redirect: "manual" });
+  assert.equal(response.status, 404);
+  assert.equal(response.headers.get("location"), null);
+  assert.equal(lookup.mock.calls[0].arguments[0], otherId);
 });

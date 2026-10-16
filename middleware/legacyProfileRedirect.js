@@ -1,13 +1,16 @@
 const Profile = require("../model/profilemodel");
 
-const LEGACY_PROFILE_ID = "6aca2356a4d611481f52e8fd";
+const LEGACY_PROFILE_ID = "6a2fe4a0897783774c008984";
+const DEFAULT_REDIRECT_URL = "https://www.technovahub.in/tbc_connect/api/profile-page/6acdc181a4d611481f52e8fe";
 
 // Only the printed profile's HTML routes use this middleware. JSON and CRUD
 // routes continue to operate on their original IDs.
 module.exports = async (req, res, next) => {
   if (req.params.id.toLowerCase() !== LEGACY_PROFILE_ID) return next();
 
-  const configuredUrl = String(process.env.LEGACY_PROFILE_REDIRECT_URL || "").trim();
+  // The supplied mapping works by default; an environment value overrides it.
+  // An explicitly empty value disables the redirect.
+  const configuredUrl = String(process.env.LEGACY_PROFILE_REDIRECT_URL ?? DEFAULT_REDIRECT_URL).trim();
   if (!configuredUrl) return next();
 
   // Do not cache a setup error, or a redirect whose destination may change.
