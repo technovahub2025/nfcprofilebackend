@@ -22,7 +22,7 @@ const PROFILE_REDIRECTS = {
     envKey: "LEGACY_PROFILE_REDIRECT_URL_5",
   },
   "6a18377fff67a900a751c41e": {
-    url: "https://www.technovahub.in/tbc_connect/api/profile-page/6acf5ce7a4d611481f52e902",
+    url: "https://www.technovahub.in/tbc_connect/api/profile-page/6a18362cff67a900a751c41d",
     envKey: "LEGACY_PROFILE_REDIRECT_URL_6",
   },
 };

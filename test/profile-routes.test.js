@@ -229,7 +229,7 @@ test("all six old URLs redirect to their own verified replacement profiles", asy
     ["6a2feaa9897783774c008988", "6acf59fea4d611481f52e901"],
     ["6a290cda897783774c00897c", "6acf58aea4d611481f52e900"],
     ["6a2feb1e897783774c008989", "6acf4b6ea4d611481f52e8ff"],
-    ["6a18377fff67a900a751c41e", "6acf5ce7a4d611481f52e902"],
+    ["6a18377fff67a900a751c41e", "6a18362cff67a900a751c41d"],
   ];
   for (const key of ["LEGACY_PROFILE_REDIRECT_URL_3", "LEGACY_PROFILE_REDIRECT_URL_4", "LEGACY_PROFILE_REDIRECT_URL_5", "LEGACY_PROFILE_REDIRECT_URL_6"]) {
     const previous = process.env[key];
