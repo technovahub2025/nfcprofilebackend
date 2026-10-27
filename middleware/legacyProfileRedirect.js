@@ -22,10 +22,10 @@ const PROFILE_REDIRECTS = {
     envKey: "LEGACY_PROFILE_REDIRECT_URL_5",
   },
   "6a18377fff67a900a751c41e": {
-    url: "https://www.technovahub.in/tbc_connect/api/profile-page/6a18362cff67a900a751c41d",
+    url: "https://www.technovahub.in/tbc_connect/api/profile-page/6ad89d56e4e2ee258076bcae",
     envKey: "LEGACY_PROFILE_REDIRECT_URL_6",
   },
-  "6a18362cff67a900a751": {
+  "6a18362cff67a900a751c41d": {
     url: "https://www.technovahub.in/tbc_connect/api/profile-page/6ad89d56e4e2ee258076bcae",
     envKey: "LEGACY_PROFILE_REDIRECT_URL_7",
   },

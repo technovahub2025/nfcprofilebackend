@@ -28,11 +28,7 @@ const router = express.Router();
 
 // Reject malformed IDs before Mongoose attempts to cast them for a lookup.
 router.param("id", (req, res, next, id) => {
-  const isMappedLegacyHtmlProfile =
-    id.toLowerCase() === "6a18362cff67a900a751" &&
-    ["/profile-page/:id", "/p/:id"].includes(req.route?.path);
-
-  if (!/^[a-fA-F0-9]{24}$/.test(id) && !isMappedLegacyHtmlProfile) {
+  if (!/^[a-fA-F0-9]{24}$/.test(id)) {
     return res.status(400).json({
       message: "Invalid profile ID. Expected a 24-character hexadecimal profile ID.",
     });
