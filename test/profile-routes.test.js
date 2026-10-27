@@ -218,7 +218,7 @@ test("the previously mentioned old ID is not redirected to this person's profile
   assert.equal(lookup.mock.calls[0].arguments[0], otherId);
 });
 
-test("all six old URLs redirect to their own verified replacement profiles", async (t) => {
+test("all seven old URLs redirect to their own verified replacement profiles", async (t) => {
   configureRedirect(t);
   delete process.env.LEGACY_PROFILE_REDIRECT_URL_2;
   const lookup = t.mock.method(Profile, "findById", async (id) => ({ _id: id }));
@@ -230,8 +230,9 @@ test("all six old URLs redirect to their own verified replacement profiles", asy
     ["6a290cda897783774c00897c", "6acf58aea4d611481f52e900"],
     ["6a2feb1e897783774c008989", "6acf4b6ea4d611481f52e8ff"],
     ["6a18377fff67a900a751c41e", "6a18362cff67a900a751c41d"],
+    ["6a18362cff67a900a751", "6ad89d56e4e2ee258076bcae"],
   ];
-  for (const key of ["LEGACY_PROFILE_REDIRECT_URL_3", "LEGACY_PROFILE_REDIRECT_URL_4", "LEGACY_PROFILE_REDIRECT_URL_5", "LEGACY_PROFILE_REDIRECT_URL_6"]) {
+  for (const key of ["LEGACY_PROFILE_REDIRECT_URL_3", "LEGACY_PROFILE_REDIRECT_URL_4", "LEGACY_PROFILE_REDIRECT_URL_5", "LEGACY_PROFILE_REDIRECT_URL_6", "LEGACY_PROFILE_REDIRECT_URL_7"]) {
     const previous = process.env[key];
     delete process.env[key];
     t.after(() => {
